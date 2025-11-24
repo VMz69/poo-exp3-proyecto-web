@@ -6,12 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Inicio de Sesión</title>
   </head>
-  <body
+  <body>
 
 
-      <h1>Proyecto Biblioteca — JSP funcionando  xD</h1>
-      <h1>HolaMundo desdeJSP ñ123</h1>
-
+    <h1>Proyecto Biblioteca — JSP funcionando  xD</h1>
+    <h1>HolaMundo desdeJSP ñ123</h1>
 
 
 
