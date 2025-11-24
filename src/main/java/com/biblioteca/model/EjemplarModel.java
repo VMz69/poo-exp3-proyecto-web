@@ -351,5 +351,58 @@ public class EjemplarModel extends Conexion {
             return null;
         }
     }
+
+    public int actualizarEjemplar(Ejemplar e) throws SQLException {
+        try {
+            String sql = "UPDATE ejemplar SET " +
+                         "titulo = ?, autor = ?, editorial = ?, isbn = ?, anio_publicacion = ?, " +
+                         "id_tipo_documento = ?, id_categoria = ?, id_ubicacion = ?, " +
+                         "numero_edicion = ?, idioma = ?, num_paginas = ?, descripcion = ?, " +
+                         "cantidad_total = ?, cantidad_disponible = ?, fecha_ingreso = ?, activo = ? " +
+                         "WHERE id_ejemplar = ?";
+
+            this.conectar();
+            ps = conexion.prepareStatement(sql);
+
+            ps.setString(1, e.getTitulo());
+            ps.setString(2, e.getAutor());
+            ps.setString(3, e.getEditorial());
+            ps.setString(4, e.getIsbn());
+            ps.setInt(5, e.getAnioPublicacion());
+            ps.setInt(6, e.getTipoDocumento().getIdTipoDoc());
+            ps.setInt(7, e.getCategoria().getIdCategoria());
+            ps.setInt(8, e.getUbicacion().getIdUbicacion());
+            ps.setString(9, e.getNumeroEdicion());
+            ps.setString(10, e.getIdioma());
+
+            int paginas = 0;
+            if (e instanceof Libro) paginas = ((Libro) e).getNumPaginas();
+            else if (e instanceof Tesis) paginas = ((Tesis) e).getNumPaginas();
+            else if (e instanceof Revista) paginas = ((Revista) e).getNumPaginas();
+            else if (e instanceof Informe) paginas = ((Informe) e).getNumPaginas();
+            else if (e instanceof Manual) paginas = ((Manual) e).getNumPaginas();
+            ps.setInt(11, paginas);
+
+            // Descripción con información específica (igual que en insertar)
+            String descripcion = (e.getDescripcion() != null ? e.getDescripcion().trim() : "") +
+                    " | " + e.getInformacionEspecifica();
+            ps.setString(12, descripcion.trim());
+
+            ps.setInt(13, e.getCantidadTotal());
+            ps.setInt(14, e.getCantidadDisponible());
+            ps.setObject(15, e.getFechaIngreso());
+            ps.setBoolean(16, e.isActivo());
+            ps.setInt(17, e.getIdEjemplar());
+
+            int filas = ps.executeUpdate();
+            this.desconectar();
+            return filas;
+
+        } catch (SQLException ex) {
+            Logger.getLogger(EjemplarModel.class.getName()).log(Level.SEVERE, null, ex);
+            this.desconectar();
+            return 0;
+        }
+    }
 }
 
