@@ -92,8 +92,9 @@ public class EjemplarModel extends Conexion {
             ps.setInt(1, id);
             rs = ps.executeQuery();
             if (rs.next()) {
+                Ejemplar ejemplar = mapearEjemplar(rs);
                 this.desconectar();
-                return mapearEjemplar(rs);
+                return ejemplar;
             }
             this.desconectar();
             return null;
@@ -199,10 +200,13 @@ public class EjemplarModel extends Conexion {
         e.setActivo(rs.getBoolean("activo"));
         e.setTipoDocumento(td);
 
-        Categoria c = new Categoria();
-        c.setIdCategoria(rs.getInt("id_categoria"));
-        c.setNombreCategoria(rs.getString("nombre_categoria"));
-        e.setCategoria(c);
+        int idCat = rs.getInt("id_categoria");
+        if (!rs.wasNull()) {
+            Categoria c = new Categoria();
+            c.setIdCategoria(idCat);
+            c.setNombreCategoria(rs.getString("nombre_categoria"));
+            e.setCategoria(c);
+        }
 
         Ubicacion u = new Ubicacion();
         u.setIdUbicacion(rs.getInt("id_ubicacion"));

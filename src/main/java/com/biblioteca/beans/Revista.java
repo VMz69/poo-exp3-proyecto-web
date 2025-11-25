@@ -15,16 +15,16 @@ public class Revista extends Ejemplar {
     public int getNumPaginas() { return numPaginas; }
     public void setNumPaginas(int numPaginas) { this.numPaginas = numPaginas; }
 
-    //    public String getVolumen() { return volumen; }
+    public String getVolumen() { return volumen; }
     public void setVolumen(String volumen) { this.volumen = volumen; }
 
-    //    public String getNumero() { return numero; }
+    public String getNumero() { return numero; }
     public void setNumero(String numero) { this.numero = numero; }
 
 //    public String getIssn() { return issn; }
 //    public void setIssn(String issn) { this.issn = issn; }
 
-    //    public String getPeriodicidad() { return periodicidad; }
+    public String getPeriodicidad() { return periodicidad; }
     public void setPeriodicidad(String periodicidad) { this.periodicidad = periodicidad; }
 
     @Override

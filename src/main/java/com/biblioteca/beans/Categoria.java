@@ -27,8 +27,8 @@ public class Categoria {
         this.nombreCategoria = nombreCategoria;
     }
 
-//    public String getDescripcion() { return descripcion; }
-//    public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
+    public String getDescripcion() { return descripcion; }
+    public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
 
     @Override
     public String toString() {

@@ -221,7 +221,6 @@
 
             $('.campo-especifico').hide();
 
-
             var textoSeleccionado = $('#tipoDocumento option:selected').text().trim();
 
             if (textoSeleccionado === 'Libro')
