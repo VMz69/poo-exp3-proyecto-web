@@ -1,4 +1,5 @@
 package com.biblioteca.model;
+
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -12,46 +13,67 @@ import javax.naming.NamingException;
 import javax.sql.DataSource;
 
 public class Conexion {
-    protected static Connection conexion = null;
-    protected PreparedStatement ps;
-    protected CallableStatement cs;
-    protected ResultSet rs;
 
-    public Conexion(){
-        this.ps = null;
-        this.rs = null;
+    // IMPORTANTE: conexión protegida y NO estática
+    protected Connection conexion = null;
+    protected PreparedStatement ps = null;
+    protected CallableStatement cs = null;
+    protected ResultSet rs = null;
+
+    public Conexion() {
+        // No inicializamos aquí, lo hacemos en conectar()
     }
 
-    public void conectar(){
-        try{
-            if(conexion == null || conexion.isClosed()){
-                Context init = new InitialContext();
-                Context context = (Context) init.lookup("java:comp/env");
-                DataSource dataSource = (DataSource) context.lookup("jdbc/mysql");
+    public void conectar() throws SQLException {
+        try {
+            if (conexion == null || conexion.isClosed()) {
+                Context initContext = new InitialContext();
+                Context envContext = (Context) initContext.lookup("java:/comp/env");
+                DataSource dataSource = (DataSource) envContext.lookup("jdbc/mysql");
                 conexion = dataSource.getConnection();
-
             }
-        } catch (NamingException e) {
-            Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, e);
+        } catch (NamingException ex) {
+            Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, "Error JNDI", ex);
+            throw new SQLException("No se pudo obtener el DataSource JNDI", ex);
         } catch (SQLException ex) {
-            Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, "Error SQL al conectar", ex);
+            throw ex;
         }
     }
 
-    public void desconectar(){
-        if(rs != null){
-            try {
+    // Cierre seguro de recursos
+    public void desconectar() {
+        try {
+            if (rs != null) {
                 rs.close();
-            } catch (SQLException e) {
-                Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, e);
+                rs = null;
             }
+        } catch (SQLException e) {
+            Logger.getLogger(Conexion.class.getName()).log(Level.WARNING, null, e);
         }
-        if(ps != null){
-            try {
+        try {
+            if (ps != null) {
                 ps.close();
-            } catch (SQLException e) {
-                Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, e);
+                ps = null;
             }
+        } catch (SQLException e) {
+            Logger.getLogger(Conexion.class.getName()).log(Level.WARNING, null, e);
+        }
+        try {
+            if (cs != null) {
+                cs.close();
+                cs = null;
+            }
+        } catch (SQLException e) {
+            Logger.getLogger(Conexion.class.getName()).log(Level.WARNING, null, e);
+        }
+        try {
+            if (conexion != null && !conexion.isClosed()) {
+                conexion.close();
+                conexion = null;
+            }
+        } catch (SQLException e) {
+            Logger.getLogger(Conexion.class.getName()).log(Level.WARNING, null, e);
         }
     }
 }

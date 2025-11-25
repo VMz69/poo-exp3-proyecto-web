@@ -79,7 +79,7 @@ public class EjemplarModel extends Conexion {
     }
 
     // Obtener ejemplar por id
-    public Ejemplar obtenerEjemplar(int id) {
+    public Ejemplar obtenerEjemplar(int id) throws SQLException {
         try {
             String sql = "SELECT e.*, td.*, c.*, u.* " +
                     "FROM ejemplar e " +

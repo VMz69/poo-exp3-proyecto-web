@@ -5,6 +5,15 @@ public class TipoDocumento {
     private String nombreTipo;
     private String descripcion;
 
+    public TipoDocumento(int idTipoDoc, String nombreTipo) {
+        this.idTipoDoc = idTipoDoc;
+        this.nombreTipo = nombreTipo;
+    }
+
+    public TipoDocumento() {
+
+    }
+
     public int getIdTipoDoc() { return idTipoDoc; }
     public void setIdTipoDoc(int idTipoDoc) { this.idTipoDoc = idTipoDoc; }
 

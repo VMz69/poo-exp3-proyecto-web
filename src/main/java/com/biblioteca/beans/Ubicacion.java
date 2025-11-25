@@ -8,6 +8,18 @@ public class Ubicacion {
     private String estante;
     private String descripcion;
 
+    public Ubicacion(int idUbicacion, String edificio, String piso, String seccion, String estante) {
+        this.idUbicacion = idUbicacion;
+        this.edificio = edificio;
+        this.piso = piso;
+        this.seccion = seccion;
+        this.estante = estante;
+    }
+
+    public Ubicacion() {
+
+    }
+
     public int getIdUbicacion() { return idUbicacion; }
     public void setIdUbicacion(int idUbicacion) { this.idUbicacion = idUbicacion; }
 
