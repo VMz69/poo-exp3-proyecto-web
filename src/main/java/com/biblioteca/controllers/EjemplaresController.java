@@ -7,6 +7,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.SQLException;
@@ -31,35 +32,20 @@ public class EjemplaresController extends HttpServlet {
 //                return;
 //            }
 //            String operacion = request.getParameter("operacion");
-//            switch(operacion) {
-//                case "listar":
-//                    listar(request, response);
-//                    break;
-//                case "nuevo":
-//                    nuevo(request, response);
-//                    break;
-//                case "insertar":
-//                    insertar(request, response);
-//                    break;
-//                case "obtener":
-//                    obtener(request, response);
-//                    break;
-//                case "modificar":
-//                    modificar(request, response);
-//                    break;
-//                case "eliminar":
-//                    eliminar(request, response);
-//                    break;
-//                default:
-//                    request.getRequestDispatcher("/error404.jsp").forward(request, response);
-//                    break;
-//            }
+
 //        }
 //    }
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
+
+        // Verificar si hay usuario logueado
+        HttpSession session = request.getSession(false);
+        if (session == null || session.getAttribute("usuarioLogueado") == null) {
+            response.sendRedirect("login.jsp");
+            return;
+        }
 
         String op = request.getParameter("op");
 
@@ -69,18 +55,25 @@ public class EjemplaresController extends HttpServlet {
         }
 
         try {
-            if (op == null || op.isEmpty() || "listar".equals(op)) {
-                listar(request, response);
-            } else if ("insertar".equals(op)) {
-                insertar(request, response);
-            } else if ("obtener".equals(op)) {
-                obtener(request, response);
-            } else if ("modificar".equals(op)) {
-                modificar(request, response);
-            } else if ("eliminar".equals(op)) {
-                eliminar(request, response);
-            } else {
-                request.getRequestDispatcher("/error404.jsp").forward(request, response);
+            switch(op) {
+                case "listar":
+                    listar(request, response);
+                    break;
+                case "insertar":
+                    insertar(request, response);
+                    break;
+                case "obtener":
+                    obtener(request, response);
+                    break;
+                case "modificar":
+                    modificar(request, response);
+                    break;
+                case "eliminar":
+                    eliminar(request, response);
+                    break;
+                default:
+                    request.getRequestDispatcher("/error404.jsp").forward(request, response);
+                    break;
             }
         } catch (Exception e) {
             // Si falla la base de datos, mostramos mensaje amigable
@@ -144,39 +137,9 @@ public class EjemplaresController extends HttpServlet {
             request.setAttribute("ubicaciones", ejemplarModel.obtenerUbicaciones());
             request.getRequestDispatcher("/ejemplares/nuevoEjemplar.jsp").forward(request, response);
         } catch (Exception e){
-            Logger.getLogger(EjemplaresController.class.getName()).log(Level.SEVERE, null, e);
+            Logger.getLogger(EjemplaresController.class.getName()).log(Level.SEVERE, "", e);
         }
     }
-
-//    private void nuevo(HttpServletRequest request, HttpServletResponse response)
-//            throws ServletException, IOException {
-//        try {
-//            // === DATOS DE PRUEBA (solo mientras configuras la BD) ===
-//            ArrayList<TipoDocumento> tipos = new ArrayList<>();
-//            tipos.add(new TipoDocumento(1, "LIBRO"));
-//            tipos.add(new TipoDocumento(2, "TESIS"));
-//            tipos.add(new TipoDocumento(3, "REVISTA"));
-//            tipos.add(new TipoDocumento(4, "CD"));
-//            tipos.add(new TipoDocumento(5, "DVD"));
-//            tipos.add(new TipoDocumento(6, "INFORME"));
-//            tipos.add(new TipoDocumento(7, "MANUAL"));
-//            request.setAttribute("tiposDocumento", tipos);
-//
-//            ArrayList<Categoria> cats = new ArrayList<>();
-//            cats.add(new Categoria(1, "Ciencias"));
-//            cats.add(new Categoria(2, "Literatura"));
-//            request.setAttribute("categorias", cats);
-//
-//            ArrayList<Ubicacion> ubis = new ArrayList<>();
-//            ubis.add(new Ubicacion(1, "A", "2", "B", "5"));
-//            request.setAttribute("ubicaciones", ubis);
-//            // === FIN DATOS DE PRUEBA ===
-//
-//            request.getRequestDispatcher("/ejemplares/nuevoEjemplar.jsp").forward(request, response);
-//        } catch (Exception ex) {
-//            ex.printStackTrace();
-//        }
-//    }
 
     private void obtener(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -207,10 +170,8 @@ public class EjemplaresController extends HttpServlet {
             request.setAttribute("categorias", ejemplarModel.obtenerCategorias());
             request.setAttribute("ubicaciones", ejemplarModel.obtenerUbicaciones());
 
-            // 4. Forward CORRECTO (¡RUTA COMPLETA!)
-            request.getRequestDispatcher("/ejemplares/editarEjemplar.jsp")
-                    .forward(request, response);
-
+            // 4. Forward
+            request.getRequestDispatcher("/ejemplares/editarEjemplar.jsp").forward(request, response);
         } catch (NumberFormatException e) {
             request.getSession().setAttribute("fracaso", "ID inválido: " + idParam);
             response.sendRedirect("ejemplares.do?op=listar");

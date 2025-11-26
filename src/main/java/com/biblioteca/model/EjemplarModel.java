@@ -64,7 +64,7 @@ public class EjemplarModel extends Conexion {
                         e.setIdEjemplar(id);
                     }
                 } catch (SQLException ex) {
-                    Logger.getLogger(EjemplarModel.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(EjemplarModel.class.getName()).log(Level.SEVERE, "", ex);
                 }
             }
 
@@ -128,7 +128,7 @@ public class EjemplarModel extends Conexion {
             this.desconectar();
             return listaEjemplar;
         } catch (SQLException ex) {
-            Logger.getLogger(EjemplarModel.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(EjemplarModel.class.getName()).log(Level.SEVERE, "", ex);
             this.desconectar();
             return null;
         }
@@ -146,7 +146,7 @@ public class EjemplarModel extends Conexion {
             this.desconectar();
             return filasAfectadas;
         } catch (SQLException ex) {
-            Logger.getLogger(EjemplarModel.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(EjemplarModel.class.getName()).log(Level.SEVERE, "", ex);
             this.desconectar();
             return 0;
         }
@@ -169,7 +169,7 @@ public class EjemplarModel extends Conexion {
             this.desconectar();
             return filasAfectadas;
         } catch (SQLException ex) {
-            Logger.getLogger(EjemplarModel.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(EjemplarModel.class.getName()).log(Level.SEVERE, "", ex);
             this.desconectar();
             return 0;
         }
@@ -350,7 +350,7 @@ public class EjemplarModel extends Conexion {
             this.desconectar();
             return lista;
         } catch (SQLException e) {
-            Logger.getLogger(Categoria.class.getName()).log(Level.SEVERE, null, e);
+            Logger.getLogger(Categoria.class.getName()).log(Level.SEVERE, "", e);
             this.desconectar();
             return null;
         }
@@ -403,7 +403,7 @@ public class EjemplarModel extends Conexion {
             return filas;
 
         } catch (SQLException ex) {
-            Logger.getLogger(EjemplarModel.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(EjemplarModel.class.getName()).log(Level.SEVERE, "", ex);
             this.desconectar();
             return 0;
         }

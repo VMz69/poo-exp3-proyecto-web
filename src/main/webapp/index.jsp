@@ -19,11 +19,20 @@
         }
         .card-hover:hover {
             transform: translateY(-10px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
         }
         .hero-header {
             color: white;
             text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        .btn-active {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            border: none;
+            color: white;
+        }
+        .btn-active:hover {
+            background: linear-gradient(45deg, #218838, #1ba085);
+            transform: scale(1.05);
         }
     </style>
 </head>
@@ -51,21 +60,23 @@
             <i class="fas fa-book-open"></i> Biblioteca UDB
         </h1>
         <p class="lead text-white">Sistema de Gestión de Recursos Bibliográficos</p>
+        <p class="text-white-50">Bienvenido, <strong>${sessionScope.usuarioLogueado.nombreCompleto}</strong></p>
     </div>
 
-    <div class="row g-4">
-        <!-- Gestión de Ejemplares -->
+    <div class="row g-5">
+
+        <!-- Modulo Ejemplares -->
         <div class="col-md-4">
             <div class="card h-100 bg-white text-dark card-hover border-0">
                 <div class="card-body text-center p-5">
-                    <i class="fas fa-book fa-4x text-primary mb-4"></i>
-                    <h3 class="card-title">Ejemplares</h3>
-                    <p class="card-text">Registrar, editar y consultar libros, revistas, tesis, CDs, DVDs y más.</p>
+                    <i class="fas fa-book fa-5x text-primary mb-4"></i>
+                    <h3 class="card-title fw-bold">Ejemplares</h3>
+                    <p class="card-text">Registrar, editar y consultar libros, tesis, revistas, CDs, DVDs y más.</p>
                     <div class="mt-4">
-                        <a href="ejemplares.do?op=nuevo" class="btn btn-primary me-2">
-                            <i class="fas fa-plus"></i> Nuevo Ejemplar
+                        <a href="ejemplares.do?op=nuevo" class="btn btn-primary btn-lg me-2">
+                            <i class="fas fa-plus"></i> Nuevo
                         </a>
-                        <a href="ejemplares.do?op=listar" class="btn btn-outline-primary">
+                        <a href="ejemplares.do?op=listar" class="btn btn-outline-primary btn-lg">
                             <i class="fas fa-list"></i> Ver Todos
                         </a>
                     </div>
@@ -73,35 +84,72 @@
             </div>
         </div>
 
-        <!-- Próximos módulos (puedes activarlos después) -->
+        <!-- Modulo Prestamos -->
+        <div class="col-md-4">
+            <div class="card h-100 bg-white text-dark card-hover border-0">
+                <div class="card-body text-center p-5">
+                    <i class="fas fa-exchange-alt fa-5x text-success mb-4"></i>
+                    <h3 class="card-title fw-bold text-success">Préstamos</h3>
+                    <p class="card-text">Control total de préstamos, devoluciones, moras y configuración dinámica.</p>
+                    <div class="mt-4">
+                        <a href="prestamos.do?op=nuevo" class="btn btn-success btn-active btn-lg me2">
+                            <i class="fas fa-plus-circle"></i> Nuevo Préstamo
+                        </a>
+                        <a href="prestamos.do?op=listar" class="btn btn-outline-success btn-lg">
+                            <i class="fas fa-clipboard-list"></i> Ver Préstamos
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modulo Usuarios -->
         <div class="col-md-4">
             <div class="card h-100 bg-white text-dark card-hover border-0 opacity-75">
                 <div class="card-body text-center p-5">
-                    <i class="fas fa-users fa-4x text-success mb-4"></i>
+                    <i class="fas fa-users fa-5x text-info mb-4"></i>
                     <h3 class="card-title">Usuarios</h3>
                     <p class="card-text">Gestión de estudiantes, docentes y administrativos.</p>
-                    <button class="btn btn-secondary" disabled>Próximamente</button>
+                    <button class="btn btn-secondary btn-lg" disabled>Próximamente</button>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-4">
-            <div class="card h-100 bg-white text-dark card-hover border-0 opacity-75">
-                <div class="card-body text-center p-5">
-                    <i class="fas fa-exchange-alt fa-4x text-warning mb-4"></i>
-                    <h3 class="card-title">Préstamos</h3>
-                    <p class="card-text">Control de préstamos, devoluciones y moras.</p>
-                    <button class="btn btn-secondary" disabled>Próximamente</button>
+        <!-- Modulo Configuracion - SOLO PARA ADMINISTRADORES -->
+        <c:if test="${sessionScope.usuarioLogueado.tipoUsuario.nombreTipo == 'Administrador'}">
+            <div class="col-md-4">
+                <div class="card h-100 bg-white text-dark card-hover border-0 position-relative">
+                    <div class="card-body text-center p-5">
+                        <i class="fas fa-cogs fa-5x mb-4 text-purple"></i>
+                        <h3 class="card-title fw-bold">Configuración</h3>
+                        <p class="card-text">
+                            Gestionar parámetros globales del sistema:<br>
+                            <small class="text-muted">
+                                • Días máximos de préstamo<br>
+                                • Límite de ejemplares por usuario<br>
+                                • Mora diaria y sanciones
+                            </small>
+                        </p>
+                        <div class="mt-4">
+                            <a href="configuracion.do" class="btn btn-lg shadow-lg text-white"
+                               style="background: linear-gradient(45deg, #667eea, #764ba2); border: none;">
+                                <i class="fas fa-wrench"></i> Abrir Configuración
+                            </a>
+                        </div>
+
+                        <!-- Badge "Solo Admin" en la esquina -->
+                        <div class="position-absolute top-0 end-0 p-3">
+                    <span class="badge bg-danger rounded-pill">
+                        <i class="fas fa-shield-alt"></i> Solo Admin
+                    </span>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
+        </c:if>
+
     </div>
 
-    <div class="text-center mt-5">
-        <small class="text-white-50">
-            © 2025 Biblioteca Universitaria Don Bosco | Sistema desarrollado con Java + JSP + MySQL
-        </small>
-    </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

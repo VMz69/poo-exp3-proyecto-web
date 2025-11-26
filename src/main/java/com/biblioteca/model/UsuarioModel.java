@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class UsuariosModel extends Conexion {
+public class UsuarioModel extends Conexion {
     public int insertarUsuario(Usuario usuario) throws SQLException {
         try {
             int filasAfectadas = 0;
@@ -29,7 +29,7 @@ public class UsuariosModel extends Conexion {
             return filasAfectadas;
 
         } catch (SQLException e) {
-            Logger.getLogger(UsuariosModel.class.getName()).log(Level.SEVERE, null, e);
+            Logger.getLogger(UsuarioModel.class.getName()).log(Level.SEVERE, null, e);
             this.desconectar();
             return 0;
         }
@@ -65,7 +65,7 @@ public class UsuariosModel extends Conexion {
             this.desconectar();
             return listaUsuarios;
         } catch (SQLException e){
-            Logger.getLogger(UsuariosModel.class.getName()).log(Level.SEVERE, null, e);
+            Logger.getLogger(UsuarioModel.class.getName()).log(Level.SEVERE, null, e);
             this.desconectar();
             return null;
         }
@@ -104,7 +104,7 @@ public class UsuariosModel extends Conexion {
             this.desconectar();
             return null;
         } catch (SQLException e){
-            Logger.getLogger(UsuariosModel.class.getName()).log(Level.SEVERE, null, e);
+            Logger.getLogger(UsuarioModel.class.getName()).log(Level.SEVERE, null, e);
             this.desconectar();
             return null;
         }
@@ -128,7 +128,7 @@ public class UsuariosModel extends Conexion {
             this.desconectar();
             return filasAfectadas;
         } catch (SQLException e){
-            Logger.getLogger(UsuariosModel.class.getName()).log(Level.SEVERE, null, e);
+            Logger.getLogger(UsuarioModel.class.getName()).log(Level.SEVERE, null, e);
             this.desconectar();
             return 0;
         }
@@ -145,7 +145,7 @@ public class UsuariosModel extends Conexion {
             this.desconectar();
             return filasAfectadas;
         } catch (SQLException e){
-            Logger.getLogger(UsuariosModel.class.getName()).log(Level.SEVERE, null, e);
+            Logger.getLogger(UsuarioModel.class.getName()).log(Level.SEVERE, null, e);
             this.desconectar();
             return 0;
         }
@@ -186,7 +186,7 @@ public class UsuariosModel extends Conexion {
             this.desconectar();
             return listaUsuarios;
         } catch (SQLException e){
-            Logger.getLogger(UsuariosModel.class.getName()).log(Level.SEVERE, null, e);
+            Logger.getLogger(UsuarioModel.class.getName()).log(Level.SEVERE, null, e);
             this.desconectar();
             return null;
         }
@@ -222,7 +222,7 @@ public class UsuariosModel extends Conexion {
             this.desconectar();
             return null;
         } catch (SQLException e){
-            Logger.getLogger(UsuariosModel.class.getName()).log(Level.SEVERE, null, e);
+            Logger.getLogger(UsuarioModel.class.getName()).log(Level.SEVERE, null, e);
             this.desconectar();
             return null;
         }
@@ -241,7 +241,7 @@ public class UsuariosModel extends Conexion {
             this.desconectar();
             return filasAfectadas;
         } catch (SQLException e){
-            Logger.getLogger(UsuariosModel.class.getName()).log(Level.SEVERE, null, e);
+            Logger.getLogger(UsuarioModel.class.getName()).log(Level.SEVERE, null, e);
             this.desconectar();
             return 0;
         }
@@ -259,7 +259,7 @@ public class UsuariosModel extends Conexion {
             this.desconectar();
             return filasAfectadas;
         } catch (SQLException e){
-            Logger.getLogger(UsuariosModel.class.getName()).log(Level.SEVERE, null, e);
+            Logger.getLogger(UsuarioModel.class.getName()).log(Level.SEVERE, null, e);
             this.desconectar();
             return 0;
         }
@@ -277,7 +277,7 @@ public class UsuariosModel extends Conexion {
             this.desconectar();
             return filasAfectadas;
         } catch (SQLException e){
-            Logger.getLogger(UsuariosModel.class.getName()).log(Level.SEVERE, null, e);
+            Logger.getLogger(UsuarioModel.class.getName()).log(Level.SEVERE, null, e);
             this.desconectar();
             return 0;
         }
@@ -300,7 +300,7 @@ public class UsuariosModel extends Conexion {
             this.desconectar();
             return listaTipoUsuarios;
         } catch (SQLException e){
-            Logger.getLogger(UsuariosModel.class.getName()).log(Level.SEVERE, null, e);
+            Logger.getLogger(UsuarioModel.class.getName()).log(Level.SEVERE, null, e);
             this.desconectar();
             return null;
         }
@@ -333,7 +333,7 @@ public class UsuariosModel extends Conexion {
             this.desconectar();
             return listaUsuarios;
         } catch (SQLException e){
-            Logger.getLogger(UsuariosModel.class.getName()).log(Level.SEVERE, null, e);
+            Logger.getLogger(UsuarioModel.class.getName()).log(Level.SEVERE, null, e);
             this.desconectar();
             return null;
         }

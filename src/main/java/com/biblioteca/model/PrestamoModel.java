@@ -147,7 +147,7 @@ public class PrestamoModel extends Conexion {
     }
 
     // Devolucion de prestamo
-    public int actualizarPrestamo(Prestamo prestamo){
+    public int devolverPrestamo(Prestamo prestamo){
         try {
             int filasAfectadas = 0;
             String sql = "UPDATE prestamo SET fecha_devolucion = ?, mora_calculada = ?, estado = ? " +

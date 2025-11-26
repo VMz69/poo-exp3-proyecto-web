@@ -49,7 +49,7 @@ public class Conexion {
                 rs = null;
             }
         } catch (SQLException e) {
-            Logger.getLogger(Conexion.class.getName()).log(Level.WARNING, null, e);
+            Logger.getLogger(Conexion.class.getName()).log(Level.WARNING, "", e);
         }
         try {
             if (ps != null) {
@@ -57,7 +57,7 @@ public class Conexion {
                 ps = null;
             }
         } catch (SQLException e) {
-            Logger.getLogger(Conexion.class.getName()).log(Level.WARNING, null, e);
+            Logger.getLogger(Conexion.class.getName()).log(Level.WARNING, "", e);
         }
         try {
             if (cs != null) {
@@ -65,7 +65,7 @@ public class Conexion {
                 cs = null;
             }
         } catch (SQLException e) {
-            Logger.getLogger(Conexion.class.getName()).log(Level.WARNING, null, e);
+            Logger.getLogger(Conexion.class.getName()).log(Level.WARNING, "", e);
         }
         try {
             if (conexion != null && !conexion.isClosed()) {
@@ -73,7 +73,7 @@ public class Conexion {
                 conexion = null;
             }
         } catch (SQLException e) {
-            Logger.getLogger(Conexion.class.getName()).log(Level.WARNING, null, e);
+            Logger.getLogger(Conexion.class.getName()).log(Level.WARNING, "", e);
         }
     }
 }

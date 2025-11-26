@@ -7,13 +7,17 @@
     <title>Lista de Ejemplares - Biblioteca UDB</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        .table-responsive { border-radius: 12px; overflow: hidden; }
+        body { font-family: 'Poppins', sans-serif; background: #f8f9fa; }
+        .card { box-shadow: 0 10px 30px rgba(0,0,0,0.15); border: none; border-radius: 15px; overflow: hidden; }
+        .card-header { background: linear-gradient(135deg, #0d6efd, #0d5bff); }
         th { background-color: #0d6efd !important; color: white !important; }
-        .btn-sm i { font-size: 0.9rem; }
+        .table-responsive { border-radius: 12px; overflow: hidden; }
+        .badge { font-size: 0.85rem; padding: 0.4em 0.8em; }
         .search-box { max-width: 400px; }
-        .badge { font-size: 0.85rem; }
-        .card { box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
+        .page-link { border-radius: 8px; }
+        .page-item.active .page-link { background-color: #0d6efd; border-color: #0d6efd; }
     </style>
 </head>
 <body class="bg-light">
@@ -36,25 +40,35 @@
                 <% session.removeAttribute("exito"); %>
             </c:if>
 
-            <!-- Búsqueda -->
-            <div class="row mb-4">
+            <!-- Mensaje de error/fracaso -->
+            <c:if test="${not empty sessionScope.fracaso}">
+                <div class="alert alert-danger alert-dismissible fade show">
+                    <i class="bi bi-exclamation-triangle-fill"></i> ${sessionScope.fracaso}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                <% session.removeAttribute("fracaso"); %>
+            </c:if>
+
+            <!-- Búsqueda + Total -->
+            <div class="row mb-4 align-items-center">
                 <div class="col-md-6">
                     <div class="input-group search-box">
-                        <span class="input-group-text"><i class="bi bi-search"></i></span>
-                        <input type="text" id="buscar" class="form-control form-control-lg"
-                               placeholder="Buscar por título, autor, ISBN o tipo..."
-                               onkeyup="filtrarTabla()">
+                        <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                        <input type="text" id="buscar" class="form-control form-control-lg border-start-0"
+                               placeholder="Buscar por título, autor, ISBN..." onkeyup="filtrarTabla()">
                     </div>
                 </div>
-                <div class="col-md-6 text-end">
-                    <span class="badge bg-primary fs-6">Total: <strong>${totalEjemplares}</strong> ejemplares</span>
+                <div class="col-md-6 text-md-end mt-3 mt-md-0">
+                    <span class="badge bg-primary fs-5 px-4 py-2">
+                        Total: <strong>${listaEjemplares.size()}</strong> ejemplares
+                    </span>
                 </div>
             </div>
 
             <!-- Tabla -->
             <div class="table-responsive">
                 <table class="table table-hover table-striped align-middle" id="tablaEjemplares">
-                    <thead class="text-center">
+                    <thead>
                     <tr>
                         <th>#</th>
                         <th>Título</th>
@@ -62,35 +76,37 @@
                         <th>Tipo</th>
                         <th>ISBN</th>
                         <th>Ubicación</th>
-                        <th>Cantidad</th>
+                        <th>Disponibles</th>
                         <th>Acciones</th>
                     </tr>
                     </thead>
                     <tbody>
                     <c:forEach var="e" items="${listaEjemplares}" varStatus="i">
                         <tr>
-                            <td class="text-center"><strong>${i.index + 1}</strong></td>
+                            <td>${i.index + 1}</td>
                             <td>
-                                <strong>${e.titulo}</strong>
-                                <br><small class="text-muted">Año: ${e.anioPublicacion} | Idioma: ${e.idioma}</small>
+                                <strong>${e.titulo}</strong><br>
+                                <small class="text-muted">Año: ${e.anioPublicacion}</small>
                             </td>
                             <td>${e.autor}</td>
                             <td>
-                                <span class="badge bg-info text-dark">${e.tipoDocumento}</span>
+                                <span class="badge bg-info text-dark">${e.tipoDocumento.nombreTipo}</span>
                             </td>
                             <td>${e.isbn}</td>
                             <td>
                                 <small>
-                                    Edif. ${e.ubicacion.edificio} - P${e.ubicacion.piso}
-                                    - Sec ${e.ubicacion.seccion} - Est ${e.ubicacion.estante}
+                                    Ed. ${e.ubicacion.edificio} -
+                                    P${e.ubicacion.piso} -
+                                    S${e.ubicacion.seccion} -
+                                    E${e.ubicacion.estante}
                                 </small>
                             </td>
                             <td class="text-center">
-                                    <span class="badge ${e.cantidadTotal > 0 ? 'bg-success' : 'bg-danger'}">
-                                            ${e.cantidadTotal}
+                                    <span class="badge ${e.cantidadDisponible > 0 ? 'bg-success' : 'bg-danger'}">
+                                        ${e.cantidadDisponible} / ${e.cantidadTotal}
                                     </span>
                             </td>
-                            <td class="text-center">
+                            <td>
                                 <a href="ejemplares.do?op=obtener&id=${e.idEjemplar}"
                                    class="btn btn-warning btn-sm" title="Editar">
                                     <i class="bi bi-pencil-square"></i>
@@ -104,20 +120,11 @@
                     </c:forEach>
                     </tbody>
                 </table>
-
-                <!-- Si no hay resultados -->
-                <c:if test="${empty listaEjemplares}">
-                    <div class="text-center py-5">
-                        <i class="bi bi-inbox display-1 text-muted"></i>
-                        <h4 class="text-muted mt-3">No hay ejemplares registrados</h4>
-                        <a href="ejemplares.do?op=nuevo" class="btn btn-primary mt-3">Registrar el primero</a>
-                    </div>
-                </c:if>
             </div>
 
             <!-- Paginación (si tienes implementada) -->
             <c:if test="${totalPaginas > 1}">
-                <nav class="mt-4">
+                <nav aria-label="Paginación de ejemplares" class="mt-4">
                     <ul class="pagination justify-content-center">
                         <li class="page-item ${paginaActual == 1 ? 'disabled' : ''}">
                             <a class="page-link" href="ejemplares.do?op=listar&pagina=${paginaActual - 1}">Anterior</a>
@@ -137,7 +144,7 @@
     </div>
 </div>
 
-<!-- Modal de confirmación para eliminar -->
+<!-- Modal Confirmar Eliminacion -->
 <div class="modal fade" id="modalEliminar" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -146,13 +153,13 @@
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <p>¿Estás seguro de eliminar el ejemplar:</p>
-                <h5 id="tituloEliminar"></h5>
-                <p class="text-danger"><strong>Esta acción no se puede deshacer.</strong></p>
+                <p>¿Estás completamente seguro de eliminar el siguiente ejemplar?</p>
+                <h5 class="text-primary" id="tituloEliminar"></h5>
+                <p class="text-danger mt-3"><strong>Esta acción eliminará el ejemplar y sus préstamos asociados y no se podrá deshacer.</strong></p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <a href="#" id="btnConfirmarEliminar" class="btn btn-danger">Sí, eliminar</a>
+                <a href="#" id="btnConfirmarEliminar" class="btn btn-danger">Sí, eliminar permanentemente</a>
             </div>
         </div>
     </div>
@@ -160,24 +167,31 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-
+    // Filtro en tiempo real
     function filtrarTabla() {
-        let input = document.getElementById("buscar");
-        let filter = input.value.toLowerCase();
+        let input = document.getElementById("buscar").value.toLowerCase();
         let rows = document.querySelectorAll("#tablaEjemplares tbody tr");
 
         rows.forEach(row => {
             let text = row.textContent.toLowerCase();
-            row.style.display = text.includes(filter) ? "" : "none";
+            row.style.display = text.includes(input) ? "" : "none";
         });
     }
 
+    // Modal de confirmación
     function confirmarEliminar(id, titulo) {
         document.getElementById("tituloEliminar").textContent = titulo;
         document.getElementById("btnConfirmarEliminar").href =
             "ejemplares.do?op=eliminar&id=" + id;
         new bootstrap.Modal(document.getElementById('modalEliminar')).show();
     }
+
+    // Auto-ocultar alertas despues de 5 segundos
+    setTimeout(() => {
+        document.querySelectorAll('.alert').forEach(alert => {
+            if (alert) new bootstrap.Alert(alert).close();
+        });
+    }, 5000);
 </script>
 </body>
 </html>
