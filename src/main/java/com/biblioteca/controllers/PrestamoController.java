@@ -328,29 +328,26 @@ public class PrestamoController extends HttpServlet {
     }
 
     private int calcularDiasRestantes(java.sql.Date fechaVencimiento) {
-        if (fechaVencimiento == null) {
-            return 0;
-        }
+        if (fechaVencimiento == null) return 0;
 
-        // Obtener la fecha actual (hoy a medianoche)
-        Calendar calHoy = Calendar.getInstance();
-        calHoy.set(Calendar.HOUR_OF_DAY, 0);
-        calHoy.set(Calendar.MINUTE, 0);
-        calHoy.set(Calendar.SECOND, 0);
-        calHoy.set(Calendar.MILLISECOND, 0);
+        Calendar hoy = Calendar.getInstance();
+        Calendar venc = Calendar.getInstance();
+        venc.setTime(fechaVencimiento);
 
-        // Fecha de vencimiento a medianoche
-        Calendar calVenc = Calendar.getInstance();
-        calVenc.setTime(fechaVencimiento);
-        calVenc.set(Calendar.HOUR_OF_DAY, 0);
-        calVenc.set(Calendar.MINUTE, 0);
-        calVenc.set(Calendar.SECOND, 0);
-        calVenc.set(Calendar.MILLISECOND, 0);
+        // Poner ambos a medianoche
+        hoy.set(Calendar.HOUR_OF_DAY, 0);
+        hoy.set(Calendar.MINUTE, 0);
+        hoy.set(Calendar.SECOND, 0);
+        hoy.set(Calendar.MILLISECOND, 0);
+        venc.set(Calendar.HOUR_OF_DAY, 0);
+        venc.set(Calendar.MINUTE, 0);
+        venc.set(Calendar.SECOND, 0);
+        venc.set(Calendar.MILLISECOND, 0);
 
-        // Diferencia en milisegundos
-        long diff = calVenc.getTimeInMillis() - calHoy.getTimeInMillis();
+        long diff = venc.getTimeInMillis() - hoy.getTimeInMillis();
+        long dias = diff / (1000L * 60 * 60 * 24);
 
-        // Convertir a días (redondea hacia abajo)
-        return (int) (diff / (1000L * 60 * 60 * 24));
+        // Si vence hoy o en el futuro → incluir el día de vencimiento
+        return (dias >= 0) ? (int) dias + 1 : (int) dias;
     }
 }
