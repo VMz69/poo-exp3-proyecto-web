@@ -39,6 +39,13 @@ public class PrestamoController extends HttpServlet {
             return;
         }
 
+        Usuario usuario = (Usuario) session.getAttribute("usuarioLogueado");
+        if (!"Administrador".equals(usuario.getTipoUsuario().getNombreTipo())) {
+            session.setAttribute("fracaso", "Acceso denegado. Solo administradores pueden realizar esta acción.");
+            response.sendRedirect("index.jsp");
+            return;
+        }
+
         String op = request.getParameter("op");
 
         if ("nuevo".equals(op)) {
