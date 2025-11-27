@@ -338,4 +338,25 @@ public class UsuarioModel extends Conexion {
             return null;
         }
     }
+
+    // Verifica si el usuario tiene mora
+    public boolean tieneMora(int idUsuario) throws SQLException {
+        try {
+            String sql = "SELECT tiene_mora FROM usuarios WHERE id_usuario = ?";
+            this.conectar();
+            ps = conexion.prepareStatement(sql);
+            ps.setInt(1, idUsuario);
+            rs = ps.executeQuery();
+
+            if (rs.next()) {
+                return rs.getBoolean("tiene_mora");
+            }
+            return false;
+        } catch (SQLException e) {
+            Logger.getLogger(UsuarioModel.class.getName()).log(Level.SEVERE, "", e);
+            return false;
+        } finally {
+            this.desconectar();
+        }
+    }
 }

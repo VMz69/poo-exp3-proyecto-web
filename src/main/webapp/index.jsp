@@ -61,6 +61,9 @@
         </h1>
         <p class="lead text-white">Sistema de Gestión de Recursos Bibliográficos</p>
         <p class="text-white-50">Bienvenido, <strong>${sessionScope.usuarioLogueado.nombreCompleto}</strong></p>
+        <a href="cambiarContrasena.do" class="btn btn-warning btn-lg shadow-lg px-5 py-3">
+            Cambiar Mi Contraseña
+        </a>
     </div>
 
     <div class="row g-5">
@@ -104,16 +107,20 @@
         </div>
 
         <!-- Modulo Usuarios -->
-        <div class="col-md-4">
-            <div class="card h-100 bg-white text-dark card-hover border-0 opacity-75">
-                <div class="card-body text-center p-5">
-                    <i class="fas fa-users fa-5x text-info mb-4"></i>
-                    <h3 class="card-title">Usuarios</h3>
-                    <p class="card-text">Gestión de estudiantes, docentes y administrativos.</p>
-                    <button class="btn btn-secondary btn-lg" disabled>Próximamente</button>
+        <c:if test="${sessionScope.usuarioLogueado.tipoUsuario.nombreTipo == 'Administrador'}">
+            <div class="col-md-4">
+                <div class="card h-100 bg-white text-dark card-hover border-0">
+                    <div class="card-body text-center p-5">
+                        <i class="fas fa-users-cog fa-5x text-info mb-4"></i>
+                        <h3 class="card-title fw-bold">Usuarios</h3>
+                        <p class="card-text">Crear, editar y eliminar cuentas de estudiantes, profesores y administradores.</p>
+                        <a href="usuarios.do" class="btn btn-info btn-lg text-white shadow-lg">
+                            Gestionar Usuarios
+                        </a>
+                    </div>
                 </div>
             </div>
-        </div>
+        </c:if>
 
         <!-- Modulo Configuracion - SOLO PARA ADMINISTRADORES -->
         <c:if test="${sessionScope.usuarioLogueado.tipoUsuario.nombreTipo == 'Administrador'}">
@@ -135,13 +142,6 @@
                                style="background: linear-gradient(45deg, #667eea, #764ba2); border: none;">
                                 <i class="fas fa-wrench"></i> Abrir Configuración
                             </a>
-                        </div>
-
-                        <!-- Badge "Solo Admin" en la esquina -->
-                        <div class="position-absolute top-0 end-0 p-3">
-                    <span class="badge bg-danger rounded-pill">
-                        <i class="fas fa-shield-alt"></i> Solo Admin
-                    </span>
                         </div>
                     </div>
                 </div>

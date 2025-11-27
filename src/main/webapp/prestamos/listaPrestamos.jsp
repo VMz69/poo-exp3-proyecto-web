@@ -236,8 +236,6 @@
         const moraStr = button.getAttribute('data-mora');
         const mora = parseFloat(moraStr) || 0;
 
-        console.log('Mora recibida:', moraStr, '| Mora parseada:', mora);
-
         document.getElementById('modalUsuario').textContent = usuario;
         document.getElementById('modalTitulo').textContent = titulo;
 

@@ -408,5 +408,19 @@ public class EjemplarModel extends Conexion {
             return 0;
         }
     }
+
+    public boolean estaDisponible(int idEjemplar) throws SQLException {
+        String sql = "SELECT cantidad_disponible FROM ejemplar WHERE id_ejemplar = ? AND activo = TRUE";
+        this.conectar();
+        ps = conexion.prepareStatement(sql);
+        ps.setInt(1, idEjemplar);
+        rs = ps.executeQuery();
+
+        if (rs.next()) {
+            return rs.getInt("cantidad_disponible") > 0;
+        }
+        this.desconectar();
+        return false; // Si no existe o está inactivo
+    }
 }
 

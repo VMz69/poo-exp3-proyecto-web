@@ -27,6 +27,7 @@ public class PrestamoController extends HttpServlet {
     private final PrestamoModel prestamoModel = new PrestamoModel();
     private final EjemplarModel ejemplarModel = new EjemplarModel();
     private final ConfiguracionModel configuracionModel = new ConfiguracionModel();
+    private final UsuarioModel usuarioModel = new UsuarioModel();
     private final ArrayList<String> listaErrores = new ArrayList<>();
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
@@ -84,45 +85,58 @@ public class PrestamoController extends HttpServlet {
         return "Controlador de Préstamos - Biblioteca UDB";
     }
 
-    // 1. Listar Prestamos Activos
+    // 1. Listar Préstamos Activos
     private void listar(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        List<Prestamo> lista = prestamoModel.obtenerPrestamosAtivos();
-        Configuracion config = configuracionModel.obtenerConfiguracion();
+        try {
+            List<Prestamo> lista = prestamoModel.obtenerPrestamosAtivos();
+            Configuracion config = configuracionModel.obtenerConfiguracion();
 
-        java.util.Date hoy = new java.util.Date();
-        int atrasados = 0;
+            java.util.Date hoy = new java.util.Date();
+            int atrasados = 0;
 
-        for (Prestamo p : lista) {
-            Date vencimiento = p.getFechaVencimiento();
-            double mora = 0.0;
+            for (Prestamo p : lista) {
+                java.sql.Date vencimiento = p.getFechaVencimiento();
+                double mora = 0.0;
+                int diasRestantes = 0;
 
-            if (vencimiento != null && vencimiento.before(hoy)) {
-                long diff = hoy.getTime() - vencimiento.getTime();
-                long diasAtraso = diff / (1000 * 60 * 60 * 24) + 1; // +1 para incluir el día de vencimiento
-                mora = diasAtraso * config.getMoraDiaria();
-                atrasados++;
+                if (vencimiento != null) {
+                    diasRestantes = calcularDiasRestantes(vencimiento);
+
+                    if (diasRestantes < 0) {
+                        // Atrasado
+                        long diasAtraso = Math.abs(diasRestantes);
+                        mora = diasAtraso * config.getMoraDiaria();
+                        p.setEstado("Atrasado");
+                        atrasados++;
+                    } else if (diasRestantes == 0) {
+                        p.setEstado("Vence hoy");
+                    } else {
+                        p.setEstado("Activo");
+                    }
+                }
+
+                p.setMoraCalculada(mora);
+
+                request.setAttribute("diasRestantes_" + p.getIdPrestamo(), diasRestantes);
             }
 
-            p.setMoraCalculada(mora);
+            request.setAttribute("listaPrestamos", lista);
+            request.setAttribute("totalPrestamos", lista.size());
+            request.setAttribute("totalAtrasados", atrasados);
+            request.setAttribute("moraDiaria", config.getMoraDiaria());
 
-            System.out.println("Préstamo ID: " + p.getIdPrestamo() + " | Mora calculada: " + mora);
+            request.getRequestDispatcher("/prestamos/listaPrestamos.jsp").forward(request, response);
 
-            if (mora > 0) {
-                p.setEstado("Atrasado");
-            }
+        } catch (Exception ex) {
+            Logger.getLogger(PrestamoController.class.getName()).log(Level.SEVERE, "Error al listar préstamos", ex);
+            request.getSession().setAttribute("fracaso", "Error al cargar los préstamos");
+            response.sendRedirect("index.jsp");
         }
-
-        request.setAttribute("listaPrestamos", lista);
-        request.setAttribute("totalPrestamos", lista.size());
-        request.setAttribute("totalAtrasados", atrasados);
-        request.setAttribute("moraDiaria", config.getMoraDiaria());
-
-        request.getRequestDispatcher("/prestamos/listaPrestamos.jsp").forward(request, response);
     }
 
-    // 2. Formulario Nuevo Prestamo=
+    // 2. Formulario Nuevo Préstamo
     private void nuevo(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
@@ -130,7 +144,7 @@ public class PrestamoController extends HttpServlet {
             Configuracion config = configuracionModel.obtenerConfiguracion();
 
             List<Ejemplar> ejemplares = ejemplarModel.buscar("");
-            List<Usuario> usuarios = new UsuarioModel().listarUsuarios();
+            List<Usuario> usuarios = usuarioModel.listarUsuarios();
 
             request.setAttribute("ejemplaresDisponibles", ejemplares != null ? ejemplares : new ArrayList<>());
             request.setAttribute("usuarios", usuarios != null ? usuarios : new ArrayList<>());
@@ -145,7 +159,7 @@ public class PrestamoController extends HttpServlet {
         }
     }
 
-    // 3. Registrar Prestamo
+    // 3. Registrar Préstamo
     private void insertar(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException, SQLException {
 
@@ -176,7 +190,7 @@ public class PrestamoController extends HttpServlet {
                 idEjemplar = Integer.parseInt(idEjemplarStr);
                 dias = Integer.parseInt(diasStr);
 
-                usuario = new UsuarioModel().obtenerUsuario(idUsuario);
+                usuario = usuarioModel.obtenerUsuario(idUsuario);
                 if (usuario == null) {
                     listaErrores.add("Usuario no encontrado");
                 }
@@ -217,7 +231,7 @@ public class PrestamoController extends HttpServlet {
         }
 
         if (!listaErrores.isEmpty()) {
-            request.setAttribute("listaerrores", listaErrores);
+            request.setAttribute("listaErrores", listaErrores);
             request.setAttribute("id_usuario", idUsuarioStr);
             request.setAttribute("id_ejemplar", idEjemplarStr);
             request.setAttribute("dias", diasStr);
@@ -249,7 +263,7 @@ public class PrestamoController extends HttpServlet {
         } catch (Exception e) {
             Logger.getLogger(PrestamoController.class.getName()).log(Level.SEVERE, "Error al registrar préstamo", e);
             listaErrores.add("Error del sistema al registrar el préstamo");
-            request.setAttribute("listaerrores", listaErrores);
+            request.setAttribute("listaErrores", listaErrores);
             nuevo(request, response);
         }
     }
@@ -265,7 +279,7 @@ public class PrestamoController extends HttpServlet {
             return;
         }
 
-        Configuracion configuracion = configuracionModel.obtenerConfiguracion();
+        Configuracion config = configuracionModel.obtenerConfiguracion();
 
         try {
             int idPrestamo = Integer.parseInt(idStr);
@@ -280,8 +294,8 @@ public class PrestamoController extends HttpServlet {
             java.util.Date hoy = new java.util.Date();
             double mora = 0.0;
             if (p.getFechaVencimiento() != null && p.getFechaVencimiento().before(hoy)) {
-                long diasAtraso = (hoy.getTime() - p.getFechaVencimiento().getTime()) / (1000 * 60 * 60 * 24);
-                mora = diasAtraso * configuracion.getMoraDiaria();
+                long diasAtraso = (hoy.getTime() - p.getFechaVencimiento().getTime()) / (1000 * 60 * 60 * 24) + 1;
+                mora = diasAtraso * config.getMoraDiaria();
             }
 
             p.setFechaDevolucion(new java.sql.Timestamp(hoy.getTime()));
@@ -292,8 +306,13 @@ public class PrestamoController extends HttpServlet {
                 // Sumar disponibilidad
                 ejemplarModel.actualizarDisponibilidad(p.getIdEjemplar(), +1);
 
+                // Actualizar mora del usuario si hay
+                if (mora > 0) {
+                    usuarioModel.actualizarMora(p.getIdUsuario(), true, mora);
+                }
+
                 String msg = "Devolución exitosa";
-                if (mora > 0) msg += " | Mora: $" + String.format("%.2f", mora);
+                if (mora > 0) msg += " | Mora generada: $" + String.format("%.2f", mora);
                 request.getSession().setAttribute("exito", msg);
             } else {
                 request.getSession().setAttribute("fracaso", "Error al procesar devolución");
@@ -306,5 +325,32 @@ public class PrestamoController extends HttpServlet {
             request.getSession().setAttribute("fracaso", "Error del sistema");
             response.sendRedirect("prestamos.do?op=listar");
         }
+    }
+
+    private int calcularDiasRestantes(java.sql.Date fechaVencimiento) {
+        if (fechaVencimiento == null) {
+            return 0;
+        }
+
+        // Obtener la fecha actual (hoy a medianoche)
+        Calendar calHoy = Calendar.getInstance();
+        calHoy.set(Calendar.HOUR_OF_DAY, 0);
+        calHoy.set(Calendar.MINUTE, 0);
+        calHoy.set(Calendar.SECOND, 0);
+        calHoy.set(Calendar.MILLISECOND, 0);
+
+        // Fecha de vencimiento a medianoche
+        Calendar calVenc = Calendar.getInstance();
+        calVenc.setTime(fechaVencimiento);
+        calVenc.set(Calendar.HOUR_OF_DAY, 0);
+        calVenc.set(Calendar.MINUTE, 0);
+        calVenc.set(Calendar.SECOND, 0);
+        calVenc.set(Calendar.MILLISECOND, 0);
+
+        // Diferencia en milisegundos
+        long diff = calVenc.getTimeInMillis() - calHoy.getTimeInMillis();
+
+        // Convertir a días (redondea hacia abajo)
+        return (int) (diff / (1000L * 60 * 60 * 24));
     }
 }
