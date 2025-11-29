@@ -45,9 +45,147 @@
             font-size: 1.1em;
             padding: 0.6em 1em;
         }
+        /* NAVBAR FIJO Y SIEMPRE VISIBLE */
+        .navbar-custom {
+            background: rgba(30, 30, 60, 0.95) !important;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            z-index: 1050;
+        }
+        .navbar-custom .nav-link {
+            color: white !important;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        .navbar-custom .nav-link:hover {
+            color: #a0d8ff !important;
+            transform: translateY(-2px);
+        }
+        .navbar-custom .dropdown-item {
+            color: #333;
+        }
+        .navbar-custom .dropdown-item:hover {
+            background-color: #667eea;
+            color: white !important;
+        }
+        .hero-header {
+            color: white;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
     </style>
 </head>
 <body>
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-custom sticky-top">
+    <div class="container-fluid px-4">
+        <a class="navbar-brand text-white fw-bold fs-4" href="index.jsp">
+            <i class="fas fa-book-open text-warning me-2"></i>Biblioteca UDB
+        </a>
+
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+
+                <!-- Consultar Catalogo - PARA TODOS -->
+                <li class="nav-item">
+                    <a class="nav-link" href="consulta.do">
+                        <i class="fas fa-search me-1"></i> Consultar Catálogo
+                    </a>
+                </li>
+
+                <!-- Ejemplares - SOLO ADMIN -->
+                <c:if test="${sessionScope.usuarioLogueado.tipoUsuario.nombreTipo == 'Administrador'}">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-book me-1"></i> Ejemplares
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="ejemplares.do?op=nuevo">
+                                <i class="fas fa-plus text-success"></i> Nuevo Ejemplar
+                            </a></li>
+                            <li><a class="dropdown-item" href="ejemplares.do?op=listar">
+                                <i class="fas fa-list"></i> Ver Todos
+                            </a></li>
+                        </ul>
+                    </li>
+                </c:if>
+
+                <!-- Prestamos - SOLO ADMIN -->
+                <c:if test="${sessionScope.usuarioLogueado.tipoUsuario.nombreTipo == 'Administrador'}">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-exchange-alt me-1"></i> Préstamos
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="prestamos.do?op=nuevo">
+                                <i class="fas fa-plus-circle text-success"></i> Nuevo Préstamo
+                            </a></li>
+                            <li><a class="dropdown-item" href="prestamos.do?op=listar">
+                                <i class="fas fa-clipboard-list"></i> Ver Activos
+                            </a></li>
+                        </ul>
+                    </li>
+                </c:if>
+
+                <!-- Usuarios y configuracion - SOLO ADMIN -->
+                <c:if test="${sessionScope.usuarioLogueado.tipoUsuario.nombreTipo == 'Administrador'}">
+                    <li class="nav-item">
+                        <a class="nav-link" href="usuarios.do">
+                            <i class="fas fa-users-cog me-1"></i> Usuarios
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="configuracion.do">
+                            <i class="fas fa-cogs me-1"></i> Configuración
+                        </a>
+                    </li>
+                </c:if>
+            </ul>
+
+            <!-- Usuario Logueado o Botón de Login -->
+            <ul class="navbar-nav">
+                <c:choose>
+                    <c:when test="${not empty sessionScope.usuarioLogueado}">
+                        <!-- Usuario logueado -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-user-circle fa-lg me-1"></i>
+                                    ${sessionScope.usuarioLogueado.nombreCompleto}
+                                <span class="badge bg-light text-dark ms-1">
+                                        ${sessionScope.usuarioLogueado.tipoUsuario.nombreTipo}
+                                </span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="cambiarContrasena.do">
+                                    <i class="fas fa-key"></i> Cambiar Contraseña
+                                </a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-danger" href="login.do?logout=1">
+                                    <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                                </a></li>
+                            </ul>
+                        </li>
+                    </c:when>
+                    <c:otherwise>
+                        <!-- Usuario NO logueado -->
+                        <li class="nav-item">
+                            <a href="login.do" class="btn btn-login">
+                                <i class="fas fa-sign-in-alt me-2"></i>Iniciar Sesión
+                            </a>
+                        </li>
+                    </c:otherwise>
+                </c:choose>
+            </ul>
+        </div>
+    </div>
+</nav>
+<%--Contenido Principal--%>
 <div class="container py-5">
     <div class="card">
         <div class="card-header text-center">
