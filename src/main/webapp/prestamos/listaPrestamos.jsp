@@ -44,9 +44,147 @@
         .table tr:hover {
             background-color: rgba(0,123,255,0.1);
         }
+        /* NAVBAR FIJO Y SIEMPRE VISIBLE */
+        .navbar-custom {
+            background: rgba(30, 30, 60, 0.95) !important;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            z-index: 1050;
+        }
+        .navbar-custom .nav-link {
+            color: white !important;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        .navbar-custom .nav-link:hover {
+            color: #a0d8ff !important;
+            transform: translateY(-2px);
+        }
+        .navbar-custom .dropdown-item {
+            color: #333;
+        }
+        .navbar-custom .dropdown-item:hover {
+            background-color: #667eea;
+            color: white !important;
+        }
+        .hero-header {
+            color: white;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
     </style>
 </head>
 <body>
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-custom sticky-top">
+    <div class="container-fluid px-4">
+        <a class="navbar-brand text-white fw-bold fs-4" href="index.jsp">
+            <i class="fas fa-book-open text-warning me-2"></i>Biblioteca UDB
+        </a>
+
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+
+                <!-- Consultar Catalogo - PARA TODOS -->
+                <li class="nav-item">
+                    <a class="nav-link" href="consulta.do">
+                        <i class="fas fa-search me-1"></i> Consultar Catálogo
+                    </a>
+                </li>
+
+                <!-- Ejemplares - SOLO ADMIN -->
+                <c:if test="${sessionScope.usuarioLogueado.tipoUsuario.nombreTipo == 'Administrador'}">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-book me-1"></i> Ejemplares
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="ejemplares.do?op=nuevo">
+                                <i class="fas fa-plus text-success"></i> Nuevo Ejemplar
+                            </a></li>
+                            <li><a class="dropdown-item" href="ejemplares.do?op=listar">
+                                <i class="fas fa-list"></i> Ver Todos
+                            </a></li>
+                        </ul>
+                    </li>
+                </c:if>
+
+                <!-- Prestamos - SOLO ADMIN -->
+                <c:if test="${sessionScope.usuarioLogueado.tipoUsuario.nombreTipo == 'Administrador'}">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-exchange-alt me-1"></i> Préstamos
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="prestamos.do?op=nuevo">
+                                <i class="fas fa-plus-circle text-success"></i> Nuevo Préstamo
+                            </a></li>
+                            <li><a class="dropdown-item" href="prestamos.do?op=listar">
+                                <i class="fas fa-clipboard-list"></i> Ver Activos
+                            </a></li>
+                        </ul>
+                    </li>
+                </c:if>
+
+                <!-- Usuarios y configuracion - SOLO ADMIN -->
+                <c:if test="${sessionScope.usuarioLogueado.tipoUsuario.nombreTipo == 'Administrador'}">
+                    <li class="nav-item">
+                        <a class="nav-link" href="usuarios.do">
+                            <i class="fas fa-users-cog me-1"></i> Usuarios
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="configuracion.do">
+                            <i class="fas fa-cogs me-1"></i> Configuración
+                        </a>
+                    </li>
+                </c:if>
+            </ul>
+
+            <!-- Usuario Logueado o Botón de Login -->
+            <ul class="navbar-nav">
+                <c:choose>
+                    <c:when test="${not empty sessionScope.usuarioLogueado}">
+                        <!-- Usuario logueado -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-user-circle fa-lg me-1"></i>
+                                    ${sessionScope.usuarioLogueado.nombreCompleto}
+                                <span class="badge bg-light text-dark ms-1">
+                                        ${sessionScope.usuarioLogueado.tipoUsuario.nombreTipo}
+                                </span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="cambiarContrasena.do">
+                                    <i class="fas fa-key"></i> Cambiar Contraseña
+                                </a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-danger" href="login.do?logout=1">
+                                    <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                                </a></li>
+                            </ul>
+                        </li>
+                    </c:when>
+                    <c:otherwise>
+                        <!-- Usuario NO logueado -->
+                        <li class="nav-item">
+                            <a href="login.do" class="btn btn-login">
+                                <i class="fas fa-sign-in-alt me-2"></i>Iniciar Sesión
+                            </a>
+                        </li>
+                    </c:otherwise>
+                </c:choose>
+            </ul>
+        </div>
+    </div>
+</nav>
+<%--Contenido Principal--%>
 <div class="container py-5">
     <!-- Mensajes de éxito/fracaso -->
     <c:if test="${not empty sessionScope.exito}">
@@ -94,9 +232,16 @@
                 </c:when>
                 <c:otherwise>
                     <div class="table-responsive">
+                        <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+                        <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+
+                        <!-- definir 'hoy' una sola vez y normalizar a yyyy-MM-dd (midnight) -->
+                        <jsp:useBean id="hoy" class="java.util.Date" />
+                        <fmt:formatDate value="${hoy}" pattern="yyyy-MM-dd" var="hoyStr" />
+                        <fmt:parseDate value="${hoyStr}" pattern="yyyy-MM-dd" var="hoyDate" />
+
                         <table class="table table-hover align-middle mb-0">
-                            <thead>
-                            <tr>
+                            <thead> <tr>
                                 <th>#</th>
                                 <th>Usuario</th>
                                 <th>Ejemplar</th>
@@ -107,38 +252,37 @@
                                 <th>Estado</th>
                                 <th>Mora</th>
                                 <th>Acción</th>
-                            </tr>
-                            </thead>
+                            </tr> </thead>
                             <tbody>
                             <c:forEach var="p" items="${listaPrestamos}" varStatus="i">
-                                <jsp:useBean id="hoy" class="java.util.Date"/>
-                                <c:set var="diasRestantes" value="${(p.fechaVencimiento.time - hoy.time) / (1000*60*60*24)}"/>
+
+                                <!-- si fechaVencimiento es null evitamos errores -->
+                                <c:if test="${not empty p.fechaVencimiento}">
+                                    <!-- normalizamos fechaVencimiento a yyyy-MM-dd (midnight) -->
+                                    <fmt:formatDate value="${p.fechaVencimiento}" pattern="yyyy-MM-dd" var="venceStr"/>
+                                    <fmt:parseDate value="${venceStr}" pattern="yyyy-MM-dd" var="venceDate"/>
+
+                                    <!-- calcular diferencia en días (puede ser negativo) -->
+                                    <c:set var="diasRestantes" value="${(venceDate.time - hoyDate.time) / 86400000}" />
+                                </c:if>
+                                <c:if test="${empty p.fechaVencimiento}">
+                                    <c:set var="diasRestantes" value="0" />
+                                </c:if>
+
                                 <tr class="${diasRestantes < 0 ? 'table-danger' : ''}">
                                     <td>${i.index + 1}</td>
+                                    <td><strong>${p.usuario.nombreCompleto}</strong></td>
+                                    <td><strong>${p.ejemplar.titulo}</strong></td>
                                     <td>
-                                        <strong>${p.usuario.nombreCompleto}</strong><br>
+                                        <span class="badge bg-info text-dark">${p.ejemplar.tipoDocumento.nombreTipo}</span>
                                     </td>
-                                    <td>
-                                        <strong>${p.ejemplar.titulo}</strong><br>
-                                    </td>
-                                    <td>
-                                            <span class="badge bg-info text-dark">
-                                                    ${p.ejemplar.tipoDocumento.nombreTipo}
-                                            </span>
-                                    </td>
-                                    <td>
-                                        <fmt:formatDate value="${p.fechaPrestamo}" pattern="dd/MM/yyyy"/>
-                                    </td>
-                                    <td>
-                                        <fmt:formatDate value="${p.fechaVencimiento}" pattern="dd/MM/yyyy"/>
-                                    </td>
-                                    <td class="dias-restantes ${
-                                            diasRestantes < 0 ? 'text-danger' :
-                                            diasRestantes <= 2 ? 'text-warning' : 'text-success'
-                                        }">
+                                    <td><fmt:formatDate value="${p.fechaPrestamo}" pattern="dd/MM/yyyy"/></td>
+                                    <td><fmt:formatDate value="${p.fechaVencimiento}" pattern="dd/MM/yyyy"/></td>
+
+                                    <td class="dias-restantes ${ diasRestantes < 0 ? 'text-danger' : (diasRestantes <= 2 ? 'text-warning' : 'text-success') }">
                                         <c:choose>
                                             <c:when test="${diasRestantes < 0}">
-                                                ${-diasRestantes.intValue()} días atrasado
+                                                ${(-diasRestantes).intValue()} días atrasado
                                             </c:when>
                                             <c:when test="${diasRestantes == 0}">
                                                 Hoy vence
@@ -151,30 +295,27 @@
                                             </c:otherwise>
                                         </c:choose>
                                     </td>
+
                                     <td>
                                         <c:choose>
                                             <c:when test="${diasRestantes < 0}">
-                                                    <span class="badge badge-atrasado">
-                                                        ATRASADO
-                                                    </span>
+                                                <span class="badge badge-atrasado">ATRASADO</span>
                                             </c:when>
                                             <c:otherwise>
-                                                    <span class="badge bg-success">
-                                                        Al día
-                                                    </span>
+                                                <span class="badge bg-success">Al día</span>
                                             </c:otherwise>
                                         </c:choose>
                                     </td>
+
                                     <td>
                                         <c:if test="${p.moraCalculada > 0}">
-                                                <span class="mora-roja">
-                                                    $${String.format("%.2f", p.moraCalculada)}
-                                                </span>
+                                            <span class="mora-roja">$${String.format('%.2f', p.moraCalculada)}</span>
                                         </c:if>
                                         <c:if test="${p.moraCalculada == 0}">
                                             <span class="text-success">Sin mora</span>
                                         </c:if>
                                     </td>
+
                                     <td>
                                         <button type="button"
                                                 class="btn btn-success btn-sm"
@@ -190,6 +331,7 @@
                             </c:forEach>
                             </tbody>
                         </table>
+
                     </div>
                 </c:otherwise>
             </c:choose>
