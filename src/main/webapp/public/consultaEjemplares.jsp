@@ -160,7 +160,7 @@
                                     <strong>Editorial:</strong> ${e.editorial}<br>
                                     <strong>ISBN:</strong> ${e.isbn}<br>
                                     <strong>Año:</strong> ${e.anioPublicacion}<br>
-                                    <strong>Ubicación:</strong> ${e.ubicacion.edificio} - ${e.ubicacion.piso} - ${e.ubicacion.seccion} - ${e.ubicacion.estante}<br>
+                                    <strong>Ubicación:</strong> Edif. ${e.ubicacion.edificio} - Piso. ${e.ubicacion.piso} - Secc. ${e.ubicacion.seccion} - Estan. ${e.ubicacion.estante}<br>
                                     <strong>Categoría:</strong> ${e.categoria.nombreCategoria}
                                 </p>
 

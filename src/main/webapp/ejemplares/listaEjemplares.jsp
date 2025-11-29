@@ -235,10 +235,10 @@
                             <td>${e.isbn}</td>
                             <td>
                                 <small>
-                                    Ed. ${e.ubicacion.edificio} -
-                                    P${e.ubicacion.piso} -
-                                    S${e.ubicacion.seccion} -
-                                    E${e.ubicacion.estante}
+                                    Edif. ${e.ubicacion.edificio} -
+                                    Piso. ${e.ubicacion.piso} -
+                                    Secc. ${e.ubicacion.seccion} -
+                                    Esta. ${e.ubicacion.estante}
                                 </small>
                             </td>
                             <td class="text-center">
