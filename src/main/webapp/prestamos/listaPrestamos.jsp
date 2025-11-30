@@ -165,7 +165,7 @@
                                     <i class="fas fa-key"></i> Cambiar Contraseña
                                 </a></li>
                                 <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item text-danger" href="login.do?logout=1">
+                                <li><a class="dropdown-item text-danger" href="logout.do">
                                     <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
                                 </a></li>
                             </ul>
