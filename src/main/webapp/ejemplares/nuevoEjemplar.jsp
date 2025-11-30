@@ -171,18 +171,18 @@
                 <div id="camposCD" class="campo-especifico">
                     <h5>CD</h5>
                     <div class="row g-3">
-                        <div class="col-md-4"><label>Duración (min)</label><input type="number" name="duracionCD" class="form-control" value="${param.duracionCD}"></div>
-                        <div class="col-md-4"><label>Formato</label><input type="text" name="formatoCD" class="form-control" value="${param.formatoCD}"></div>
-                        <div class="col-md-4"><label>Artista</label><input type="text" name="artistaCD" class="form-control" value="${param.artistaCD}"></div>
+                        <div class="col-md-6"><label>Duración (min)</label><input type="number" name="duracionCD" class="form-control" value="${param.duracionCD}"></div>
+                        <div class="col-md-6"><label>Formato</label><input type="text" name="formatoCD" class="form-control" value="${param.formatoCD}"></div>
+<%--                        <div class="col-md-4"><label>Artista</label><input type="text" name="artistaCD" class="form-control" value="${param.artistaCD}"></div>--%>
                     </div>
                 </div>
 
                 <div id="camposDVD" class="campo-especifico">
                     <h5>DVD</h5>
                     <div class="row g-3">
-                        <div class="col-md-4"><label>Duración (min)</label><input type="number" name="duracionDVD" class="form-control" value="${param.duracionDVD}"></div>
-                        <div class="col-md-4"><label>Formato</label><input type="text" name="formatoDVD" class="form-control" value="${param.formatoDVD}"></div>
-                        <div class="col-md-4"><label>Director</label><input type="text" name="directorDVD" class="form-control" value="${param.directorDVD}"></div>
+                        <div class="col-md-6"><label>Duración (min)</label><input type="number" name="duracionDVD" class="form-control" value="${param.duracionDVD}"></div>
+                        <div class="col-md-6"><label>Formato</label><input type="text" name="formatoDVD" class="form-control" value="${param.formatoDVD}"></div>
+<%--                        <div class="col-md-4"><label>Director</label><input type="text" name="directorDVD" class="form-control" value="${param.directorDVD}"></div>--%>
                     </div>
                 </div>
 

@@ -107,7 +107,10 @@
                 <button class="btn btn-outline-primary btn-sm me-2" onclick="filtrarTipo('Libro')">Libros</button>
                 <button class="btn btn-outline-success btn-sm me-2" onclick="filtrarTipo('Tesis')">Tesis</button>
                 <button class="btn btn-outline-warning btn-sm me-2" onclick="filtrarTipo('Revista')">Revistas</button>
-                <button class="btn btn-outline-info btn-sm" onclick="filtrarTipo('CD')">CD/DVD</button>
+                <button class="btn btn-outline-info btn-sm" onclick="filtrarTipo('CD')">CD</button>
+                <button class="btn btn-outline-info btn-sm" onclick="filtrarTipo('DVD')">DVD</button>
+                <button class="btn btn-outline-info btn-sm" onclick="filtrarTipo('Manual')">Manual</button>
+                <button class="btn btn-outline-info btn-sm" onclick="filtrarTipo('Informe')">Informe</button>
             </div>
 
             <!-- Resultados -->
