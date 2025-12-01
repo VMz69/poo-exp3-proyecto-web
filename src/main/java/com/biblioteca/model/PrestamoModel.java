@@ -150,8 +150,9 @@ public class PrestamoModel extends Conexion {
     public int devolverPrestamo(Prestamo prestamo){
         try {
             int filasAfectadas = 0;
-            String sql = "UPDATE prestamo SET fecha_devolucion = ?, mora_calculada = ?, estado = ? " +
+            String sql = "UPDATE prestamo SET fecha_devolucion = ?, mora_calculada = ?, estado = ?, mora_pagada=0 " +
                          "WHERE id_prestamo = ?";
+            //Milton: agregar actualizacion a mora pagada pendiente (0).
             this.conectar();
             ps = conexion.prepareStatement(sql);
             ps.setTimestamp(1, prestamo.getFechaDevolucion());
@@ -196,29 +197,41 @@ public class PrestamoModel extends Conexion {
      * Devuelve true si el usuario tiene al menos un préstamo en mora.
      */
 
+    /**
+     * Devuelve true si el usuario NO puede realizar préstamos,
+     * ya sea por préstamos vencidos activos o por mora no pagada.
+     */
     public boolean usuarioTienePrestamosEnMora(int idUsuario) throws SQLException {
-        boolean tiene = false;
-        String sql = "SELECT COUNT(*) AS total FROM prestamo " +
-                "WHERE id_usuario = ? " +
-                "AND estado = 'Activo' " +
-                "AND fecha_vencimiento < NOW() " +
-                "AND fecha_devolucion IS NULL";
+        boolean bloqueado = false;
+
+        String sql =
+                "SELECT COUNT(*) AS total FROM prestamo " +
+                        "WHERE id_usuario = ? AND (" +
+                        "   (estado = 'Activo' AND fecha_vencimiento < CURDATE()) " +       // Caso A: vencidos activos
+                        "   OR " +
+                        "   (estado = 'Devuelto' AND mora_calculada > 0 AND mora_pagada = 0) " +  // Caso B: mora no pagada
+                        ")";
+
         try {
             this.conectar();
             ps = conexion.prepareStatement(sql);
             ps.setInt(1, idUsuario);
             rs = ps.executeQuery();
+
             if (rs.next()) {
-                tiene = rs.getInt("total") > 0;
+                bloqueado = rs.getInt("total") > 0;
             }
+
         } catch (SQLException ex) {
             Logger.getLogger(PrestamoModel.class.getName()).log(Level.SEVERE, null, ex);
             throw ex;
         } finally {
             this.desconectar();
         }
-        return tiene;
+
+        return bloqueado;
     }
+
 
     /**
      * Calcula y devuelve la suma de las moras (mora_calculada) para todos los préstamos en mora del usuario.

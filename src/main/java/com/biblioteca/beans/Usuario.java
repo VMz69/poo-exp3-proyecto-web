@@ -18,10 +18,6 @@ public class Usuario {
     private double moraReal;
 
 
-
-
-
-
     // Relación
     private TipoUsuario tipoUsuario;
 

@@ -57,7 +57,7 @@ public class UsuarioModel extends Conexion {
 
                             "   (SELECT COALESCE(SUM(p.mora_calculada), 0) FROM prestamo p " +
                             "       WHERE p.id_usuario = u.id_usuario AND p.estado = 'Devuelto' " +
-                            "       AND p.mora_calculada > 0) AS mora_real " +
+                            "       AND p.mora_calculada > 0 AND p.mora_pagada = 0) AS mora_real " +
 
                             "FROM usuarios u " +
                             "JOIN tipo_usuario tu ON u.id_tipo = tu.id_tipo " +
@@ -332,37 +332,41 @@ public class UsuarioModel extends Conexion {
 
 
     // Pagar Mora
-    public int pagarMora(int id) throws SQLException{
-        try{
-            int filasAfectadas = 0;
-            String sql = "UPDATE usuarios SET tiene_mora = FALSE, monto_mora = 0.00 WHERE id_usuario = ?";
-            this.conectar();
-            ps = conexion.prepareStatement(sql);
-            ps.setInt(1, id);
-            filasAfectadas = ps.executeUpdate();
-            this.desconectar();
-            return filasAfectadas;
-        } catch (SQLException e){
-            Logger.getLogger(UsuarioModel.class.getName()).log(Level.SEVERE, null, e);
-            this.desconectar();
-            return 0;
-        }
+//    public int pagarMora(int id) throws SQLException{
+//        try{
+//            int filasAfectadas = 0;
+//            String sql = "UPDATE usuarios SET tiene_mora = FALSE, monto_mora = 0.00 WHERE id_usuario = ?";
+//            this.conectar();
+//            ps = conexion.prepareStatement(sql);
+//            ps.setInt(1, id);
+//            filasAfectadas = ps.executeUpdate();
+//            this.desconectar();
+//            return filasAfectadas;
+//        } catch (SQLException e){
+//            Logger.getLogger(UsuarioModel.class.getName()).log(Level.SEVERE, null, e);
+//            this.desconectar();
+//            return 0;
+//        }
+//    }
+
+    public int pagarMora(int idUsuario) throws SQLException {
+        String sql = "UPDATE prestamo " +
+                "SET mora_pagada = 1 " +
+                "WHERE id_usuario = ? " +
+                "AND estado = 'Devuelto' " +
+                "AND mora_calculada > 0 " +
+                "AND mora_pagada = 0";
+
+        this.conectar();
+        ps = conexion.prepareStatement(sql);
+        ps.setInt(1, idUsuario);
+        int filas = ps.executeUpdate();
+        this.desconectar();
+        return filas;
     }
 
-    public void marcarMoraPagada(int idUsuario) throws SQLException {
-        String sql = "UPDATE usuarios SET tiene_mora = 0, monto_mora = 0 WHERE id_usuario = ?";
-        try {
-            this.conectar();
-            ps = conexion.prepareStatement(sql);
-            ps.setInt(1, idUsuario);
-            ps.executeUpdate();
-        } catch (SQLException ex) {
-            Logger.getLogger(UsuarioModel.class.getName()).log(Level.SEVERE, null, ex);
-            throw ex;
-        } finally {
-            this.desconectar();
-        }
-    }
+
+
 
     // ^ Fin lógica de pagar mora
 
