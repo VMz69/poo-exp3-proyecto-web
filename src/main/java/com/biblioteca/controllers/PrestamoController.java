@@ -40,16 +40,28 @@ public class PrestamoController extends HttpServlet {
         }
 
         Usuario usuario = (Usuario) session.getAttribute("usuarioLogueado");
-        if (!"Administrador".equals(usuario.getTipoUsuario().getNombreTipo())) {
-            session.setAttribute("fracaso", "Acceso denegado. Solo administradores pueden realizar esta acción.");
-            response.sendRedirect("index.jsp");
+        String op = request.getParameter("op");
+
+        // OPERACIONES ACCESIBLES PARA TODOS LOS USUARIOS LOGUEADOS
+        if ("nuevo".equals(op) || "insertar".equals(op)) {
+            try {
+                if ("nuevo".equals(op)) {
+                    nuevo(request, response);
+                } else if ("insertar".equals(op)) {
+                    insertar(request, response);
+                }
+            } catch (Exception e) {
+                Logger.getLogger(PrestamoController.class.getName()).log(Level.SEVERE, "Error en operación de préstamo", e);
+                request.setAttribute("error", "Error del sistema: " + e.getMessage());
+                request.getRequestDispatcher("/error.jsp").forward(request, response);
+            }
             return;
         }
 
-        String op = request.getParameter("op");
-
-        if ("nuevo".equals(op)) {
-            nuevo(request, response);
+        // OPERACIONES SOLO PARA ADMINISTRADORES
+        if (!"Administrador".equals(usuario.getTipoUsuario().getNombreTipo())) {
+            session.setAttribute("fracaso", "Acceso denegado. Solo administradores pueden realizar esta acción.");
+            response.sendRedirect("index.jsp");
             return;
         }
 
@@ -57,9 +69,6 @@ public class PrestamoController extends HttpServlet {
             switch (op) {
                 case "listar":
                     listar(request, response);
-                    break;
-                case "insertar":
-                    insertar(request, response);
                     break;
                 case "devolver":
                     devolver(request, response);
@@ -92,7 +101,7 @@ public class PrestamoController extends HttpServlet {
         return "Controlador de Préstamos - Biblioteca UDB";
     }
 
-    // 1. Listar Préstamos Activos
+    // 1. Listar Préstamos Activos (SOLO ADMINISTRADORES)
     private void listar(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
@@ -143,19 +152,30 @@ public class PrestamoController extends HttpServlet {
         }
     }
 
-    // 2. Formulario Nuevo Préstamo
+    // 2. Formulario Nuevo Préstamo (ACCESIBLE PARA TODOS LOS USUARIOS LOGUEADOS)
     private void nuevo(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
         try {
+            HttpSession session = request.getSession();
+            Usuario usuarioLogueado = (Usuario) session.getAttribute("usuarioLogueado");
             Configuracion config = configuracionModel.obtenerConfiguracion();
 
             List<Ejemplar> ejemplares = ejemplarModel.buscar("");
-            List<Usuario> usuarios = usuarioModel.listarUsuarios();
+
+            // Si NO es administrador, solo mostrar el usuario actual
+            List<Usuario> usuarios = new ArrayList<>();
+            if ("Administrador".equals(usuarioLogueado.getTipoUsuario().getNombreTipo())) {
+                usuarios = usuarioModel.listarUsuarios();
+            } else {
+                // Para usuarios no administradores, solo pueden solicitar para sí mismos
+                usuarios.add(usuarioLogueado);
+            }
 
             request.setAttribute("ejemplaresDisponibles", ejemplares != null ? ejemplares : new ArrayList<>());
             request.setAttribute("usuarios", usuarios != null ? usuarios : new ArrayList<>());
             request.setAttribute("config", config);
+            request.setAttribute("esAdministrador", "Administrador".equals(usuarioLogueado.getTipoUsuario().getNombreTipo()));
 
             request.getRequestDispatcher("/prestamos/nuevoPrestamo.jsp").forward(request, response);
 
@@ -166,16 +186,31 @@ public class PrestamoController extends HttpServlet {
         }
     }
 
-    // 3. Registrar Préstamo
+    // 3. Registrar Préstamo (ACCESIBLE PARA TODOS LOS USUARIOS LOGUEADOS)
     private void insertar(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException, SQLException {
 
         listaErrores.clear();
+        HttpSession session = request.getSession();
+        Usuario usuarioLogueado = (Usuario) session.getAttribute("usuarioLogueado");
+        boolean esAdministrador = "Administrador".equals(usuarioLogueado.getTipoUsuario().getNombreTipo());
+
         Configuracion config = configuracionModel.obtenerConfiguracion();
 
         String idUsuarioStr = request.getParameter("id_usuario");
         String idEjemplarStr = request.getParameter("id_ejemplar");
         String diasStr = request.getParameter("dias");
+
+        // VALIDACIÓN ESPECIAL: Si no es administrador, solo puede solicitar para sí mismo
+        if (!esAdministrador) {
+            int idUsuarioLogueado = usuarioLogueado.getIdUsuario();
+            if (idUsuarioStr == null || !idUsuarioStr.equals(String.valueOf(idUsuarioLogueado))) {
+                listaErrores.add("Solo puedes solicitar préstamos para tu propia cuenta");
+                request.setAttribute("listaErrores", listaErrores);
+                nuevo(request, response);
+                return;
+            }
+        }
 
         // Validaciones básicas
         if (idUsuarioStr == null || idUsuarioStr.isEmpty() || "0".equals(idUsuarioStr)) {
@@ -246,11 +281,10 @@ public class PrestamoController extends HttpServlet {
             return;
         }
 
-        /* Logica para evitar prestamos si alguien tiene cualquier tipo de mora */
-
+        /* Lógica para evitar préstamos si alguien tiene cualquier tipo de mora */
         try {
-            boolean tieneMora = prestamoModel.usuarioTienePrestamosEnMora(idUsuario); // revisa monto en usuarios
-            int vencidos = prestamoModel.contarPrestamosVencidosActivos(idUsuario); // pendientes de devolución
+            boolean tieneMora = prestamoModel.usuarioTienePrestamosEnMora(idUsuario);
+            int vencidos = prestamoModel.contarPrestamosVencidosActivos(idUsuario);
 
             if (tieneMora) {
                 listaErrores.add("No puede solicitar un nuevo préstamo: el usuario tiene mora pendiente (pagar antes).");
@@ -271,23 +305,7 @@ public class PrestamoController extends HttpServlet {
             throw new ServletException("Error verificando mora/vencidos del usuario", ex);
         }
 
-
-        // Registar prestamo
-
-        if (usuario.isTieneMora()) {
-            listaErrores.add("El usuario tiene mora pendiente.");
-            nuevo(request, response);
-            return;
-        }
-
-        int vencidos = usuarioModel.contarPrestamosVencidos(idUsuario);
-        if (vencidos > 0) {
-            listaErrores.add("No puede solicitar un préstamo: tiene devoluciones pendientes.");
-            nuevo(request, response);
-            return;
-        }
-
-
+        // Registrar préstamo
         try {
             Calendar cal = Calendar.getInstance();
             cal.add(Calendar.DAY_OF_YEAR, dias);
@@ -301,10 +319,21 @@ public class PrestamoController extends HttpServlet {
             if (prestamoModel.insertarPrestamo(p) > 0) {
                 ejemplarModel.actualizarDisponibilidad(idEjemplar, -1);
 
-                request.getSession().setAttribute("exito",
-                        "Préstamo registrado - Vence: " + fechaVencimiento +
-                                " (Mora diaria: $" + String.format("%.2f", config.getMoraDiaria()) + ")");
-                response.sendRedirect("prestamos.do?op=listar");
+                String mensajeExito = "Solicitud de préstamo enviada - Vence: " + fechaVencimiento +
+                        " (Mora diaria: $" + String.format("%.2f", config.getMoraDiaria()) + ")";
+
+                if (!esAdministrador) {
+                    mensajeExito += "<br>Tu solicitud será revisada por un administrador.";
+                }
+
+                session.setAttribute("exito", mensajeExito);
+
+                // Redirección según tipo de usuario
+                if (esAdministrador) {
+                    response.sendRedirect("prestamos.do?op=listar");
+                } else {
+                    response.sendRedirect("index.jsp"); // O a la página principal del usuario
+                }
             } else {
                 throw new Exception("Error al insertar en base de datos");
             }
@@ -316,7 +345,7 @@ public class PrestamoController extends HttpServlet {
         }
     }
 
-    // 4. DEVOLVER PRÉSTAMO
+    // 4. DEVOLVER PRÉSTAMO (SOLO ADMINISTRADORES)
     private void devolver(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
@@ -354,11 +383,6 @@ public class PrestamoController extends HttpServlet {
                 // Sumar disponibilidad
                 ejemplarModel.actualizarDisponibilidad(p.getIdEjemplar(), +1);
 
-                // Actualizar mora del usuario si hay (legacy)
-//                if (mora > 0) {
-//                    usuarioModel.actualizarMora(p.getIdUsuario(), true, mora);
-//                }
-
                 // Recalcular mora total del usuario después de la devolución
                 PrestamoModel pm = new PrestamoModel();
                 double moraTotal = pm.calcularMoraTotal(p.getIdUsuario());
@@ -366,7 +390,6 @@ public class PrestamoController extends HttpServlet {
                 // Actualizar estado de mora del usuario
                 boolean tieneMora = moraTotal > 0;
                 usuarioModel.actualizarMora(p.getIdUsuario(), tieneMora, moraTotal);
-
 
                 String msg = "Devolución exitosa";
                 if (mora > 0) msg += " | Mora generada en este préstamo: $" + String.format("%.2f", mora);
