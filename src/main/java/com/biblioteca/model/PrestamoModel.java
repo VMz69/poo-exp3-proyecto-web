@@ -189,4 +189,88 @@ public class PrestamoModel extends Conexion {
             return 0;
         }
     }
+
+    // ---------- Milton: Logica de prestamos en mora para evitar nuevos prestamos ----------
+
+    /**
+     * Devuelve true si el usuario tiene al menos un préstamo en mora.
+     */
+
+    public boolean usuarioTienePrestamosEnMora(int idUsuario) throws SQLException {
+        boolean tiene = false;
+        String sql = "SELECT COUNT(*) AS total FROM prestamo " +
+                "WHERE id_usuario = ? " +
+                "AND estado = 'Activo' " +
+                "AND fecha_vencimiento < NOW() " +
+                "AND fecha_devolucion IS NULL";
+        try {
+            this.conectar();
+            ps = conexion.prepareStatement(sql);
+            ps.setInt(1, idUsuario);
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                tiene = rs.getInt("total") > 0;
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(PrestamoModel.class.getName()).log(Level.SEVERE, null, ex);
+            throw ex;
+        } finally {
+            this.desconectar();
+        }
+        return tiene;
+    }
+
+    /**
+     * Calcula y devuelve la suma de las moras (mora_calculada) para todos los préstamos en mora del usuario.
+     * Retorna 0 si no hay ninguna mora. Esto es importante por que, si hizo varios prestamos y solo 1 esta en mora por el momento,
+     * no debe de prestarse nada. A pesar que los demás estén a tiempo.
+     */
+
+    public double calcularMoraTotal(int idUsuario) throws SQLException {
+        double total = 0.0;
+        String sql = "SELECT COALESCE(SUM(mora_calculada),0) AS total FROM prestamo " +
+                "WHERE id_usuario = ? " +
+                "AND estado = 'Activo' " +
+                "AND fecha_vencimiento < NOW() " +
+                "AND fecha_devolucion IS NULL";
+        try {
+            this.conectar();
+            ps = conexion.prepareStatement(sql);
+            ps.setInt(1, idUsuario);
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                total = rs.getDouble("total");
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(PrestamoModel.class.getName()).log(Level.SEVERE, null, ex);
+            throw ex;
+        } finally {
+            this.desconectar();
+        }
+        return total;
+    }
+
+    public int contarPrestamosVencidosActivos(int idUsuario) throws SQLException {
+        int count = 0;
+        String sql = "SELECT COUNT(*) AS total FROM prestamo " +
+                "WHERE id_usuario = ? AND estado = 'Activo' AND fecha_vencimiento < ?";
+        try {
+            this.conectar();
+            ps = conexion.prepareStatement(sql);
+            // fecha actual como java.sql.Date (solo fecha)
+            java.sql.Date hoy = new java.sql.Date(System.currentTimeMillis());
+            ps.setInt(1, idUsuario);
+            ps.setDate(2, hoy);
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                count = rs.getInt("total");
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(PrestamoModel.class.getName()).log(Level.SEVERE, null, ex);
+            throw ex;
+        } finally {
+            this.desconectar();
+        }
+        return count;
+    }
 }

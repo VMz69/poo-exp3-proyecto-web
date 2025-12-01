@@ -38,8 +38,36 @@ public class UsuarioModel extends Conexion {
     public List<Usuario> listarUsuarios() throws SQLException {
         try{
             List<Usuario> listaUsuarios = new ArrayList<>();
-            String sql ="SELECT u.*, tu.nombre_tipo FROM usuarios u " +
-                        "JOIN tipo_usuario tu ON u.id_tipo = tu.id_tipo ORDER BY u.id_usuario";
+//            String sql ="SELECT u.*, tu.nombre_tipo FROM usuarios u " +
+//                        "JOIN tipo_usuario tu ON u.id_tipo = tu.id_tipo ORDER BY u.id_usuario";
+            // No puedo confiar en el cambio tiene_mora de la tabla usuarios por que este solo se actualiza con devoluciones.
+            // Necesito la mora en tiempo real directamente desde la tabla de prestamos
+
+            String sql =
+                    "SELECT " +
+                            "   u.id_usuario, u.nombre_completo, u.correo, u.usuario, u.contrasena, " +
+                            "   u.fecha_registro, u.activo, u.id_tipo, tu.nombre_tipo, " +
+
+                            "   (SELECT COUNT(*) FROM prestamo p " +
+                            "       WHERE p.id_usuario = u.id_usuario AND p.estado = 'Activo') AS prestamos_activos, " +
+
+                            "   (SELECT COUNT(*) FROM prestamo p " +
+                            "       WHERE p.id_usuario = u.id_usuario AND p.estado = 'Activo' " +
+                            "       AND p.fecha_vencimiento < CURDATE()) AS prestamos_vencidos, " +
+
+                            "   (SELECT COALESCE(SUM(p.mora_calculada), 0) FROM prestamo p " +
+                            "       WHERE p.id_usuario = u.id_usuario AND p.estado = 'Devuelto' " +
+                            "       AND p.mora_calculada > 0) AS mora_real " +
+
+                            "FROM usuarios u " +
+                            "JOIN tipo_usuario tu ON u.id_tipo = tu.id_tipo " +
+                            "ORDER BY u.id_usuario ASC";
+
+
+
+
+
+
             this.conectar();
             ps = conexion.prepareStatement(sql);
             rs = ps.executeQuery();
@@ -50,11 +78,16 @@ public class UsuarioModel extends Conexion {
                 usuario.setCorreo(rs.getString("correo"));
                 usuario.setUsuario(rs.getString("usuario"));
                 usuario.setContrasena(rs.getString("contrasena"));
-                usuario.setTieneMora(rs.getBoolean("tiene_mora"));
-                usuario.setMontoMora(rs.getDouble("monto_mora"));
+                // mora_real viene del SQL desde la tabla prestamos
+                double moraReal = rs.getDouble("mora_real");
+                usuario.setMontoMora(moraReal);
+                // Tiene mora si mora_real > 0
+                usuario.setTieneMora(moraReal > 0);
                 usuario.setFechaRegistro(rs.getTimestamp("fecha_registro"));
                 usuario.setActivo(rs.getBoolean("activo"));
-
+                usuario.setPrestamosActivos(rs.getInt("prestamos_activos"));
+                usuario.setPrestamosVencidos(rs.getInt("prestamos_vencidos"));
+                usuario.setMoraReal(rs.getDouble("mora_real"));
                 TipoUsuario tipoUsuario = new TipoUsuario();
                 tipoUsuario.setIdTipo(rs.getInt("id_tipo"));
                 tipoUsuario.setNombreTipo(rs.getString("nombre_tipo"));
@@ -67,7 +100,7 @@ public class UsuarioModel extends Conexion {
         } catch (SQLException e){
             Logger.getLogger(UsuarioModel.class.getName()).log(Level.SEVERE, null, e);
             this.desconectar();
-            return null;
+            return new ArrayList<>();
         }
     }
 
@@ -265,6 +298,39 @@ public class UsuarioModel extends Conexion {
         }
     }
 
+    public int contarPrestamosActivos(int idUsuario) throws SQLException {
+        int total = 0;
+        String sql = "SELECT COUNT(*) FROM prestamo WHERE id_usuario = ? AND estado = 'Activo'";
+        try {
+            this.conectar();
+            ps = conexion.prepareStatement(sql);
+            ps.setInt(1, idUsuario);
+            rs = ps.executeQuery();
+            if (rs.next()) total = rs.getInt(1);
+        } finally {
+            this.desconectar();
+        }
+        return total;
+    }
+
+    public int contarPrestamosVencidos(int idUsuario) throws SQLException {
+        int total = 0;
+        String sql = "SELECT COUNT(*) FROM prestamo " +
+                "WHERE id_usuario = ? AND estado = 'Activo' AND fecha_vencimiento < CURDATE()";
+        try {
+            this.conectar();
+            ps = conexion.prepareStatement(sql);
+            ps.setInt(1, idUsuario);
+            rs = ps.executeQuery();
+            if (rs.next()) total = rs.getInt(1);
+        } finally {
+            this.desconectar();
+        }
+        return total;
+    }
+
+
+
     // Pagar Mora
     public int pagarMora(int id) throws SQLException{
         try{
@@ -282,6 +348,23 @@ public class UsuarioModel extends Conexion {
             return 0;
         }
     }
+
+    public void marcarMoraPagada(int idUsuario) throws SQLException {
+        String sql = "UPDATE usuarios SET tiene_mora = 0, monto_mora = 0 WHERE id_usuario = ?";
+        try {
+            this.conectar();
+            ps = conexion.prepareStatement(sql);
+            ps.setInt(1, idUsuario);
+            ps.executeUpdate();
+        } catch (SQLException ex) {
+            Logger.getLogger(UsuarioModel.class.getName()).log(Level.SEVERE, null, ex);
+            throw ex;
+        } finally {
+            this.desconectar();
+        }
+    }
+
+    // ^ Fin lógica de pagar mora
 
     // Obtener los tipos de usuario
     public List<TipoUsuario> obtenerTipoUsuarios() throws SQLException {

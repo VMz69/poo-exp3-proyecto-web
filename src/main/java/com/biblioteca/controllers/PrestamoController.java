@@ -246,7 +246,48 @@ public class PrestamoController extends HttpServlet {
             return;
         }
 
+        /* Logica para evitar prestamos si alguien tiene cualquier tipo de mora */
+
+        try {
+            boolean tieneMora = prestamoModel.usuarioTienePrestamosEnMora(idUsuario); // revisa monto en usuarios
+            int vencidos = prestamoModel.contarPrestamosVencidosActivos(idUsuario); // pendientes de devolución
+
+            if (tieneMora) {
+                listaErrores.add("No puede solicitar un nuevo préstamo: el usuario tiene mora pendiente (pagar antes).");
+            } else if (vencidos > 0) {
+                listaErrores.add("No puede solicitar un nuevo préstamo: el usuario tiene " + vencidos + " préstamo(s) vencido(s) sin devolver.");
+            }
+
+            if (!listaErrores.isEmpty()) {
+                request.setAttribute("listaErrores", listaErrores);
+                request.setAttribute("id_usuario", idUsuarioStr);
+                request.setAttribute("id_ejemplar", idEjemplarStr);
+                request.setAttribute("dias", diasStr);
+                nuevo(request, response);
+                return;
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(PrestamoController.class.getName()).log(Level.SEVERE, "Error verificando mora/vencidos", ex);
+            throw new ServletException("Error verificando mora/vencidos del usuario", ex);
+        }
+
+
         // Registar prestamo
+
+        if (usuario.isTieneMora()) {
+            listaErrores.add("El usuario tiene mora pendiente.");
+            nuevo(request, response);
+            return;
+        }
+
+        int vencidos = usuarioModel.contarPrestamosVencidos(idUsuario);
+        if (vencidos > 0) {
+            listaErrores.add("No puede solicitar un préstamo: tiene devoluciones pendientes.");
+            nuevo(request, response);
+            return;
+        }
+
+
         try {
             Calendar cal = Calendar.getInstance();
             cal.add(Calendar.DAY_OF_YEAR, dias);
@@ -313,13 +354,22 @@ public class PrestamoController extends HttpServlet {
                 // Sumar disponibilidad
                 ejemplarModel.actualizarDisponibilidad(p.getIdEjemplar(), +1);
 
-                // Actualizar mora del usuario si hay
-                if (mora > 0) {
-                    usuarioModel.actualizarMora(p.getIdUsuario(), true, mora);
-                }
+                // Actualizar mora del usuario si hay (legacy)
+//                if (mora > 0) {
+//                    usuarioModel.actualizarMora(p.getIdUsuario(), true, mora);
+//                }
+
+                // Recalcular mora total del usuario después de la devolución
+                PrestamoModel pm = new PrestamoModel();
+                double moraTotal = pm.calcularMoraTotal(p.getIdUsuario());
+
+                // Actualizar estado de mora del usuario
+                boolean tieneMora = moraTotal > 0;
+                usuarioModel.actualizarMora(p.getIdUsuario(), tieneMora, moraTotal);
+
 
                 String msg = "Devolución exitosa";
-                if (mora > 0) msg += " | Mora generada: $" + String.format("%.2f", mora);
+                if (mora > 0) msg += " | Mora generada en este préstamo: $" + String.format("%.2f", mora);
                 request.getSession().setAttribute("exito", msg);
             } else {
                 request.getSession().setAttribute("fracaso", "Error al procesar devolución");
