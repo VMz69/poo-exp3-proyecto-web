@@ -13,11 +13,28 @@ public class Usuario {
     private double montoMora;
     private Timestamp fechaRegistro;
     private boolean activo;
+    private int prestamosActivos;
+    private int prestamosVencidos;
+    private double moraReal;
+
 
     // Relación
     private TipoUsuario tipoUsuario;
 
     // Getters y Setters
+
+    public double getMoraReal() {
+        return moraReal;
+    }
+    public void setMoraReal(double moraReal) {
+        this.moraReal = moraReal;
+    }
+    public int getPrestamosActivos() { return prestamosActivos; }
+    public void setPrestamosActivos(int prestamosActivos) { this.prestamosActivos = prestamosActivos; }
+
+    public int getPrestamosVencidos() { return prestamosVencidos; }
+    public void setPrestamosVencidos(int prestamosVencidos) { this.prestamosVencidos = prestamosVencidos; }
+
     public int getIdUsuario() { return idUsuario; }
     public void setIdUsuario(int idUsuario) { this.idUsuario = idUsuario; }
 

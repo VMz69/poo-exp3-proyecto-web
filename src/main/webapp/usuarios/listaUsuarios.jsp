@@ -222,7 +222,10 @@
                 </a>
             </div>
 
-            <!-- Tabla de usuarios -->
+            <p style="font-size:12px; color:gray;">
+                * La mora solo se calcula cuando el usuario devuelve el ejemplar.
+            </p>
+
             <div class="table-responsive">
                 <table class="table table-hover align-middle">
                     <thead>
@@ -233,7 +236,9 @@
                         <th>Correo</th>
                         <th>Tipo</th>
                         <th>Estado</th>
-                        <th>Mora</th>
+                        <th>Préstamos</th>
+                        <th>Vencidos</th>
+                        <th class="text-center">Mora*</th>
                         <th>Registrado</th>
                         <th>Acciones</th>
                     </tr>
@@ -242,9 +247,12 @@
                     <c:forEach var="u" items="${listaUsuarios}" varStatus="i">
                         <tr class="${u.tieneMora ? 'table-danger' : ''}">
                             <td>${i.index + 1}</td>
+                            <%--Nombre--%>
                             <td><strong>${u.nombreCompleto}</strong></td>
                             <td>${u.usuario}</td>
                             <td>${u.correo}</td>
+
+                                <%--Tipo--%>
                             <td>
                                     <span class="badge
                                         ${u.tipoUsuario.nombreTipo == 'Administrador' ? 'bg-danger' :
@@ -252,36 +260,59 @@
                                             ${u.tipoUsuario.nombreTipo}
                                     </span>
                             </td>
+                                <%--Estado--%>
+
                             <td>
                                     <span class="badge bg-${u.activo ? 'success' : 'secondary'}">
                                             ${u.activo ? 'Activo' : 'Inactivo'}
                                     </span>
                             </td>
-                            <td class="text-center">
+
+                            <td>${u.prestamosActivos}</td>
+
+                            <td>
                                 <c:choose>
-                                    <c:when test="${u.tieneMora}">
-                                        <div class="d-flex flex-column align-items-center gap-2">
-                                            <span class="badge bg-danger badge-mora">$ ${u.montoMora}</span>
-                                            <!-- Boton pagar mora -->
-                                            <button type="button" class="btn btn-success btn-sm shadow-sm"
-                                                    data-bs-toggle="modal"
-                                                    data-bs-target="#modalPagarMora"
-                                                    onclick="prepararPago(${u.idUsuario}, '${u.nombreCompleto}', ${u.montoMora})">
-                                                Pagar Ahora
-                                            </button>
-                                        </div>
+                                    <c:when test="${u.prestamosVencidos > 0}">
+                                        <span class="badge bg-warning text-dark">${u.prestamosActivos}</span>
                                     </c:when>
                                     <c:otherwise>
-                                        <span class="text-success fw-bold">Sin mora</span>
+                                        <span>0</span>
                                     </c:otherwise>
                                 </c:choose>
                             </td>
+                            <!-- Mora* -->
+                            <td class="text-center">
+                                <c:choose>
+                                    <c:when test="${u.moraReal > 0 and u.prestamosVencidos == 0}">
+                                        <span class="badge bg-danger">$ ${u.montoMora}</span>
+                                        <button class="btn btn-success btn-sm"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#modalPagarMora"
+                                                onclick="prepararPago(${u.idUsuario}, '${u.nombreCompleto}', ${u.montoMora})">
+                                            Pagar Ahora
+                                        </button>
+                                    </c:when>
+
+                                    <c:when test="${u.prestamosVencidos > 0}">
+                                        <span class="badge bg-warning text-dark">Devolución Pendiente</span>
+                                    </c:when>
+
+                                    <c:otherwise>
+                                        <span class="badge bg-success">Sin mora</span>
+                                    </c:otherwise>
+
+                                </c:choose>
+                            </td>
+
+
+
+
                             <td>
                                 <fmt:formatDate value="${u.fechaRegistro}" pattern="dd/MM/yyyy"/>
                             </td>
                             <td>
                                 <a href="usuarios.do?op=editar&id=${u.idUsuario}"
-                                   class="btn btn-warning btn-sm" title="Editar">
+                                   class="btn btn-warning btn-sm mb-1" title="Editar">
                                     Editar
                                 </a>
 

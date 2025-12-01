@@ -6,6 +6,7 @@ import com.biblioteca.model.UsuarioModel;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.ServletException;
@@ -85,8 +86,22 @@ public class UsuarioController extends HttpServlet {
     private void listar(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
-            request.setAttribute("listaUsuarios", usuarioModel.listarUsuarios());
+            List<Usuario> lista = usuarioModel.listarUsuarios();
+
+            // Agregar datos extra a cada usuario
+            for (Usuario u : lista) {
+                int activos = usuarioModel.contarPrestamosActivos(u.getIdUsuario());
+                int vencidos = usuarioModel.contarPrestamosVencidos(u.getIdUsuario());
+
+                u.setPrestamosActivos(activos);
+                u.setPrestamosVencidos(vencidos);
+            }
+
+            request.setAttribute("notaMora", "La mora se calcula cuando el usuario devuelve el libro.");
+            request.setAttribute("listaUsuarios", lista);
+
             request.getRequestDispatcher("/usuarios/listaUsuarios.jsp").forward(request, response);
+
         } catch (Exception e) {
             throw new ServletException(e);
         }
