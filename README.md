@@ -38,7 +38,6 @@ poo-exp3-proyecto-web
 │       │   └── com/
 │       │       └── biblioteca/
 │       │           ├── controllers/
-│       │           ├── dao/
 │       │           ├── models/
 │       │           ├── filters/
 │       │           └── utils/
@@ -97,6 +96,8 @@ poo-exp3-proyecto-web
 - El control de acceso se realiza mediante filtros.
 - Las vistas JSP no son accesibles directamente sin pasar por el controlador.
 - La lógica de negocio no está embebida en las vistas.
+- La aplicación consume una **base de datos remota** alojada en un **servidor privado** perteneciente a un integrante del equipo.
+- Los parámetros de conexión pueden variar según el entorno de ejecución.
 
 ---
 
