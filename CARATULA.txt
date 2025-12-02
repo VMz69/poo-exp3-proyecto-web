@@ -12,6 +12,7 @@ MR251336 - Darwin Ezequiel Martínez Rosales
 GH251230 - Fernando José Gómez Hernández
 AV251709 - Milton Adalberto Ayala Ventura
 SG240238 - Nelson Mauricio Solano Guardado
+BA251704 - Gerson Vladimir Borja Alvarez
 VM251307 - Victor Emmanuel Velasco Martinez
 --------------------------------------------------------
 LINK REPOSITORIO DE PROYECTO:
