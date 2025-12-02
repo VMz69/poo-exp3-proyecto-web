@@ -120,8 +120,10 @@
                     </li>
                 </c:if>
 
-                <!-- Prestamos - SOLO ADMIN -->
-                <c:if test="${sessionScope.usuarioLogueado.tipoUsuario.nombreTipo == 'Administrador'}">
+                <!-- Prestamos - TODOS LOS USUARIOS (parcial) -->
+                <c:if test="${sessionScope.usuarioLogueado.tipoUsuario.nombreTipo == 'Administrador'
+                    || sessionScope.usuarioLogueado.tipoUsuario.nombreTipo == 'Profesor'
+                    || sessionScope.usuarioLogueado.tipoUsuario.nombreTipo == 'Alumno'}">
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                             <i class="fas fa-exchange-alt me-1"></i> Préstamos
@@ -130,9 +132,13 @@
                             <li><a class="dropdown-item" href="prestamos.do?op=nuevo">
                                 <i class="fas fa-plus-circle text-success"></i> Nuevo Préstamo
                             </a></li>
-                            <li><a class="dropdown-item" href="prestamos.do?op=listar">
-                                <i class="fas fa-clipboard-list"></i> Ver Activos
-                            </a></li>
+<%--                                        VER Y ADMINISTRAR PRESTAMOS SOLO PARA ADMINISTRADORES      --%>
+                                <c:if test="${sessionScope.usuarioLogueado.tipoUsuario.nombreTipo == 'Administrador'}">
+                                    <li><a class="dropdown-item" href="prestamos.do?op=listar">
+                                        <i class="fas fa-clipboard-list"></i> Ver Activos
+                                    </a></li>
+                                </c:if>
+
                         </ul>
                     </li>
                 </c:if>
@@ -170,7 +176,7 @@
                                     <i class="fas fa-key"></i> Cambiar Contraseña
                                 </a></li>
                                 <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item text-danger" href="login.do?logout=1">
+                                <li><a class="dropdown-item text-danger" href="logout.do">
                                     <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
                                 </a></li>
                             </ul>

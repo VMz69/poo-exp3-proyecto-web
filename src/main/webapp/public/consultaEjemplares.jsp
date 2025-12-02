@@ -107,7 +107,10 @@
                 <button class="btn btn-outline-primary btn-sm me-2" onclick="filtrarTipo('Libro')">Libros</button>
                 <button class="btn btn-outline-success btn-sm me-2" onclick="filtrarTipo('Tesis')">Tesis</button>
                 <button class="btn btn-outline-warning btn-sm me-2" onclick="filtrarTipo('Revista')">Revistas</button>
-                <button class="btn btn-outline-info btn-sm" onclick="filtrarTipo('CD')">CD/DVD</button>
+                <button class="btn btn-outline-info btn-sm" onclick="filtrarTipo('CD')">CD</button>
+                <button class="btn btn-outline-info btn-sm" onclick="filtrarTipo('DVD')">DVD</button>
+                <button class="btn btn-outline-info btn-sm" onclick="filtrarTipo('Manual')">Manual</button>
+                <button class="btn btn-outline-info btn-sm" onclick="filtrarTipo('Informe')">Informe</button>
             </div>
 
             <!-- Resultados -->
@@ -160,7 +163,7 @@
                                     <strong>Editorial:</strong> ${e.editorial}<br>
                                     <strong>ISBN:</strong> ${e.isbn}<br>
                                     <strong>Año:</strong> ${e.anioPublicacion}<br>
-                                    <strong>Ubicación:</strong> ${e.ubicacion.edificio} - ${e.ubicacion.piso} - ${e.ubicacion.seccion} - ${e.ubicacion.estante}<br>
+                                    <strong>Ubicación:</strong> Edif. ${e.ubicacion.edificio} - Piso. ${e.ubicacion.piso} - Secc. ${e.ubicacion.seccion} - Estan. ${e.ubicacion.estante}<br>
                                     <strong>Categoría:</strong> ${e.categoria.nombreCategoria}
                                 </p>
 

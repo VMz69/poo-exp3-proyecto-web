@@ -81,18 +81,10 @@
 
                     <!-- Estado actual del usuario -->
                     <div class="row mb-4">
-                        <div class="col-md-6">
+                        <div class="col-md-12">
                             <div class="alert ${usuario.activo ? 'alert-success' : 'alert-danger'} text-center py-3">
                                 <strong>Estado:</strong>
                                 ${usuario.activo ? 'ACTIVO' : 'INACTIVO'}
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="alert ${usuario.tieneMora ? 'alert-danger' : 'alert-success'} text-center py-3">
-                                <strong>Mora:</strong>
-                                ${usuario.tieneMora ?
-                                        '<span class="badge bg-danger badge-mora">DEUDA: $'.concat(usuario.montoMora).concat('</span>')
-                                        : 'Sin mora'}
                             </div>
                         </div>
                     </div>

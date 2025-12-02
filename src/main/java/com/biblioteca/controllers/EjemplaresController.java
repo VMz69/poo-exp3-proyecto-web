@@ -380,111 +380,125 @@ public class EjemplaresController extends HttpServlet {
 
     private void modificar(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
         listaErrores.clear();
 
-        String idStr = request.getParameter("idEjemplar");
-
-        if (idStr == null || idStr.trim().isEmpty()) {
-            request.getSession().setAttribute("fracaso", "ID de ejemplar no válido");
-            response.sendRedirect("ejemplares.do?op=listar");
-            return;
-        }
-
         try {
-            int idEjemplar = Integer.parseInt(idStr);
-            Ejemplar existente = ejemplarModel.obtenerEjemplar(idEjemplar);
-
-            if (existente == null) {
-                request.getSession().setAttribute("fracaso", "El ejemplar no existe");
+            String idEjemplarStr = request.getParameter("idEjemplar");
+            if (idEjemplarStr == null || idEjemplarStr.trim().isEmpty()) {
+                request.getSession().setAttribute("fracaso", "ID de ejemplar no recibido");
                 response.sendRedirect("ejemplares.do?op=listar");
                 return;
             }
 
-            TipoDocumento tipoDocumento = existente.getTipoDocumento();
-            Ejemplar ejemplar = EjemplarFactory.crearEjemplar(tipoDocumento);
-            ejemplar.setIdEjemplar(idEjemplar);
+            int idEjemplar = Integer.parseInt(idEjemplarStr);
+
+            // 1. Obtener el ejemplar existente (con su tipo real)
+            Ejemplar existente = ejemplarModel.obtenerEjemplar(idEjemplar);
+            if (existente == null) {
+                request.getSession().setAttribute("fracaso", "El ejemplar no existe o fue eliminado");
+                response.sendRedirect("ejemplares.do?op=listar");
+                return;
+            }
+
+            // 2. Crear una copia para modificar (mantiene el tipo concreto)
+            Ejemplar ejemplar = existente;   // ya es del tipo correcto (CD, Libro, etc.)
 
             // === CAMPOS COMUNES ===
-            ejemplar.setTitulo(request.getParameter("titulo").trim());
-            ejemplar.setAutor(getStringOrEmpty(request.getParameter("autor")));
-            ejemplar.setEditorial(getStringOrEmpty(request.getParameter("editorial")));
-            ejemplar.setIsbn(getStringOrEmpty(request.getParameter("isbn")));
-            ejemplar.setAnioPublicacion(parseInt(request.getParameter("anioPublicacion"), 2025));
-            ejemplar.setIdioma(getStringOrEmpty(request.getParameter("idioma")));
-            ejemplar.setCantidadTotal(parseInt(request.getParameter("cantidadTotal"), 1));
-            ejemplar.setCantidadDisponible(parseInt(request.getParameter("cantidadDisponible"), 0));
-            ejemplar.setActivo(existente.isActivo());
-            ejemplar.setFechaIngreso(existente.getFechaIngreso());
+            ejemplar.setTitulo(getStringOrEmpty(request.getParameter("titulo")).trim());
+            ejemplar.setAutor(getStringOrEmpty(request.getParameter("autor")).trim());
+            ejemplar.setEditorial(getStringOrEmpty(request.getParameter("editorial")).trim());
+            ejemplar.setIsbn(getStringOrEmpty(request.getParameter("isbn")).trim());
+            ejemplar.setAnioPublicacion(parseInt(request.getParameter("anioPublicacion"), 0));
+            ejemplar.setIdioma(getStringOrEmpty(request.getParameter("idioma")).trim());
+            ejemplar.setNumeroEdicion(getStringOrEmpty(request.getParameter("numeroEdicion")).trim());
 
+            // Cantidades
+            int cantidadTotal = parseInt(request.getParameter("cantidadTotal"), 1);
+            if (cantidadTotal < 1) cantidadTotal = 1;
+            ejemplar.setCantidadTotal(cantidadTotal);
+
+            // Si bajan la cantidad total, ajustamos disponibles (no puede haber más disponibles que totales)
+            if (ejemplar.getCantidadDisponible() > cantidadTotal) {
+                ejemplar.setCantidadDisponible(cantidadTotal);
+            }
+
+            // Categoría y Ubicación
             Categoria categoria = new Categoria();
             categoria.setIdCategoria(parseInt(request.getParameter("idCategoria"), 0));
-            ejemplar.setCategoria(categoria);
+            ejemplar.setCategoria(categoria.getIdCategoria() == 0 ? null : categoria);
 
             Ubicacion ubicacion = new Ubicacion();
             ubicacion.setIdUbicacion(parseInt(request.getParameter("idUbicacion"), 1));
             ejemplar.setUbicacion(ubicacion);
 
+            // TipoDocumento
+            TipoDocumento tipoDocumento = new TipoDocumento();
+            tipoDocumento.setIdTipoDoc(parseInt(request.getParameter("idTipoDocumento"), 0));
+            tipoDocumento.setNombreTipo(ejemplar.getTipoDocumentoString());
             ejemplar.setTipoDocumento(tipoDocumento);
 
             // === CAMPOS ESPECÍFICOS ===
-            switch (tipoDocumento.getIdTipoDoc()) {
-                case 1: // LIBRO
-                    ((Libro) ejemplar).setNumPaginas(parseInt(request.getParameter("numPaginasLibro"), 0));
-                    ((Libro) ejemplar).setColeccion(getStringOrEmpty(request.getParameter("coleccion")));
-                    ((Libro) ejemplar).setNumeroSerie(getStringOrEmpty(request.getParameter("numeroSerie")));
-                    break;
+            if (ejemplar instanceof Libro) {
+                Libro libro = (Libro) ejemplar;
+                libro.setNumPaginas(parseInt(request.getParameter("numPaginasLibro"), 0));
+                libro.setColeccion(getStringOrEmpty(request.getParameter("coleccion")));
+                libro.setNumeroSerie(getStringOrEmpty(request.getParameter("numeroSerie")));
 
-                case 2: // TESIS
-                    ((Tesis) ejemplar).setNumPaginas(parseInt(request.getParameter("numPaginasTesis"), 0));
-                    ((Tesis) ejemplar).setUniversidad(getStringOrEmpty(request.getParameter("universidad")));
-                    ((Tesis) ejemplar).setFacultad(getStringOrEmpty(request.getParameter("facultad")));
-                    ((Tesis) ejemplar).setCarrera(getStringOrEmpty(request.getParameter("carrera")));
-                    ((Tesis) ejemplar).setAsesor(getStringOrEmpty(request.getParameter("asesor")));
-                    ((Tesis) ejemplar).setGradoAcademico(getStringOrEmpty(request.getParameter("gradoAcademico")));
-                    break;
+            } else if (ejemplar instanceof Tesis) {
+                Tesis tesis = (Tesis) ejemplar;
+                tesis.setNumPaginas(parseInt(request.getParameter("numPaginasTesis"), 0));
+                tesis.setUniversidad(getStringOrEmpty(request.getParameter("universidad")));
+                tesis.setFacultad(getStringOrEmpty(request.getParameter("facultad")));
+                tesis.setCarrera(getStringOrEmpty(request.getParameter("carrera")));
+                tesis.setAsesor(getStringOrEmpty(request.getParameter("asesor")));
+                tesis.setGradoAcademico(getStringOrEmpty(request.getParameter("gradoAcademico")));
 
-                case 3: // REVISTA
-                    ((Revista) ejemplar).setNumPaginas(parseInt(request.getParameter("numPaginasRevista"), 0));
-                    ((Revista) ejemplar).setVolumen(getStringOrEmpty(request.getParameter("volumen")));
-                    ((Revista) ejemplar).setNumero(getStringOrEmpty(request.getParameter("numero")));
-                    ((Revista) ejemplar).setPeriodicidad(getStringOrEmpty(request.getParameter("periodicidad")));
-                    break;
+            } else if (ejemplar instanceof Revista) {
+                Revista revista = (Revista) ejemplar;
+                revista.setNumPaginas(parseInt(request.getParameter("numPaginasRevista"), 0));
+                revista.setVolumen(getStringOrEmpty(request.getParameter("volumen")));
+                revista.setNumero(getStringOrEmpty(request.getParameter("numero")));
+                revista.setPeriodicidad(getStringOrEmpty(request.getParameter("periodicidad")));
 
-                case 4: // CD
-                    ((CD) ejemplar).setDuracion(parseInt(request.getParameter("duracionCD"), 0));
-                    ((CD) ejemplar).setFormato(getStringOrEmpty(request.getParameter("formatoCD")));
-                    ((CD) ejemplar).setArtista(getStringOrEmpty(request.getParameter("artistaCD")));
-                    break;
+            } else if (ejemplar instanceof CD) {
+                CD cd = (CD) ejemplar;
+                cd.setDuracion(parseInt(request.getParameter("duracionCD"), 0));
+                cd.setFormato(getStringOrEmpty(request.getParameter("formatoCD")));
+                cd.setArtista(getStringOrEmpty(request.getParameter("artistaCD")));
 
-                case 5: // DVD
-                    ((DVD) ejemplar).setDuracion(parseInt(request.getParameter("duracionDVD"), 0));
-                    ((DVD) ejemplar).setFormato(getStringOrEmpty(request.getParameter("formatoDVD")));
-                    ((DVD) ejemplar).setDirector(getStringOrEmpty(request.getParameter("directorDVD")));
-                    break;
+            } else if (ejemplar instanceof DVD) {
+                DVD dvd = (DVD) ejemplar;
+                dvd.setDuracion(parseInt(request.getParameter("duracionDVD"), 0));
+                dvd.setFormato(getStringOrEmpty(request.getParameter("formatoDVD")));
+                dvd.setDirector(getStringOrEmpty(request.getParameter("directorDVD")));
 
-                case 6: // INFORME
-                    ((Informe) ejemplar).setNumPaginas(parseInt(request.getParameter("numPaginasInforme"), 0));
-                    ((Informe) ejemplar).setInstitucion(getStringOrEmpty(request.getParameter("institucion")));
-                    ((Informe) ejemplar).setSupervisor(getStringOrEmpty(request.getParameter("supervisor")));
-                    break;
+            } else if (ejemplar instanceof Informe) {
+                Informe informe = (Informe) ejemplar;
+                informe.setNumPaginas(parseInt(request.getParameter("numPaginasInforme"), 0));
+                informe.setInstitucion(getStringOrEmpty(request.getParameter("institucion")));
+                informe.setSupervisor(getStringOrEmpty(request.getParameter("supervisor")));
 
-                case 7: // MANUAL
-                    ((Manual) ejemplar).setNumPaginas(parseInt(request.getParameter("numPaginasManual"), 0));
-                    ((Manual) ejemplar).setArea(getStringOrEmpty(request.getParameter("areaManual")));
-                    ((Manual) ejemplar).setNivelUsuario(getStringOrEmpty(request.getParameter("nivelUsuario")));
-                    ((Manual) ejemplar).setVersion(getStringOrEmpty(request.getParameter("versionManual")));
-                    break;
+            } else if (ejemplar instanceof Manual) {
+                Manual manual = (Manual) ejemplar;
+                manual.setNumPaginas(parseInt(request.getParameter("numPaginasManual"), 0));
+                manual.setArea(getStringOrEmpty(request.getParameter("areaManual")));
+                manual.setNivelUsuario(getStringOrEmpty(request.getParameter("nivelUsuario")));
+                manual.setVersion(getStringOrEmpty(request.getParameter("versionManual")));
             }
 
+            // === ACTUALIZAR EN BASE DE DATOS ===
             if (ejemplarModel.actualizarEjemplar(ejemplar) > 0) {
                 request.getSession().setAttribute("exito", "Ejemplar actualizado correctamente");
             } else {
                 request.getSession().setAttribute("fracaso", "No se pudo actualizar el ejemplar");
             }
+
             response.sendRedirect("ejemplares.do?op=listar");
 
         } catch (Exception ex) {
-            Logger.getLogger(EjemplaresController.class.getName()).log(Level.SEVERE, "Error al modificar ejemplar", ex);
+            Logger.getLogger(EjemplaresController.class.getName())
+                    .log(Level.SEVERE, "Error al modificar ejemplar", ex);
             request.getSession().setAttribute("fracaso", "Error del sistema: " + ex.getMessage());
             response.sendRedirect("ejemplares.do?op=listar");
         }

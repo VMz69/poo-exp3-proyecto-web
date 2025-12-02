@@ -123,12 +123,8 @@
                         </div>
 
                         <div class="d-grid d-md-flex justify-content-md-end gap-2">
-                            <a href="prestamos.do?op=listar" class="btn btn-secondary">
-                                Cancelar
-                            </a>
-                            <button type="submit" class="btn btn-success btn-lg">
-                                Registrar Préstamo
-                            </button>
+                            <a href="prestamos.do?op=listar" class="btn btn-secondary btn-lg">Cancelar</a> <!-- Milton: agregue clase btn-lg para poder tener los botones de manera consistente -->
+                            <button type="submit" class="btn btn-success btn-lg">Registrar Préstamo</button>
                         </div>
                     </form>
                 </div>

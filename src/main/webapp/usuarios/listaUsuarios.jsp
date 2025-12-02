@@ -45,9 +45,147 @@
             font-size: 1.1em;
             padding: 0.6em 1em;
         }
+        /* NAVBAR FIJO Y SIEMPRE VISIBLE */
+        .navbar-custom {
+            background: rgba(30, 30, 60, 0.95) !important;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            z-index: 1050;
+        }
+        .navbar-custom .nav-link {
+            color: white !important;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        .navbar-custom .nav-link:hover {
+            color: #a0d8ff !important;
+            transform: translateY(-2px);
+        }
+        .navbar-custom .dropdown-item {
+            color: #333;
+        }
+        .navbar-custom .dropdown-item:hover {
+            background-color: #667eea;
+            color: white !important;
+        }
+        .hero-header {
+            color: white;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
     </style>
 </head>
 <body>
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-custom sticky-top">
+    <div class="container-fluid px-4">
+        <a class="navbar-brand text-white fw-bold fs-4" href="index.jsp">
+            <i class="fas fa-book-open text-warning me-2"></i>Biblioteca UDB
+        </a>
+
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+
+                <!-- Consultar Catalogo - PARA TODOS -->
+                <li class="nav-item">
+                    <a class="nav-link" href="consulta.do">
+                        <i class="fas fa-search me-1"></i> Consultar Catálogo
+                    </a>
+                </li>
+
+                <!-- Ejemplares - SOLO ADMIN -->
+                <c:if test="${sessionScope.usuarioLogueado.tipoUsuario.nombreTipo == 'Administrador'}">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-book me-1"></i> Ejemplares
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="ejemplares.do?op=nuevo">
+                                <i class="fas fa-plus text-success"></i> Nuevo Ejemplar
+                            </a></li>
+                            <li><a class="dropdown-item" href="ejemplares.do?op=listar">
+                                <i class="fas fa-list"></i> Ver Todos
+                            </a></li>
+                        </ul>
+                    </li>
+                </c:if>
+
+                <!-- Prestamos - SOLO ADMIN -->
+                <c:if test="${sessionScope.usuarioLogueado.tipoUsuario.nombreTipo == 'Administrador'}">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-exchange-alt me-1"></i> Préstamos
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="prestamos.do?op=nuevo">
+                                <i class="fas fa-plus-circle text-success"></i> Nuevo Préstamo
+                            </a></li>
+                            <li><a class="dropdown-item" href="prestamos.do?op=listar">
+                                <i class="fas fa-clipboard-list"></i> Ver Activos
+                            </a></li>
+                        </ul>
+                    </li>
+                </c:if>
+
+                <!-- Usuarios y configuracion - SOLO ADMIN -->
+                <c:if test="${sessionScope.usuarioLogueado.tipoUsuario.nombreTipo == 'Administrador'}">
+                    <li class="nav-item">
+                        <a class="nav-link" href="usuarios.do">
+                            <i class="fas fa-users-cog me-1"></i> Usuarios
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="configuracion.do">
+                            <i class="fas fa-cogs me-1"></i> Configuración
+                        </a>
+                    </li>
+                </c:if>
+            </ul>
+
+            <!-- Usuario Logueado o Botón de Login -->
+            <ul class="navbar-nav">
+                <c:choose>
+                    <c:when test="${not empty sessionScope.usuarioLogueado}">
+                        <!-- Usuario logueado -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-user-circle fa-lg me-1"></i>
+                                    ${sessionScope.usuarioLogueado.nombreCompleto}
+                                <span class="badge bg-light text-dark ms-1">
+                                        ${sessionScope.usuarioLogueado.tipoUsuario.nombreTipo}
+                                </span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="cambiarContrasena.do">
+                                    <i class="fas fa-key"></i> Cambiar Contraseña
+                                </a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-danger" href="logout.do">
+                                    <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                                </a></li>
+                            </ul>
+                        </li>
+                    </c:when>
+                    <c:otherwise>
+                        <!-- Usuario NO logueado -->
+                        <li class="nav-item">
+                            <a href="login.do" class="btn btn-login">
+                                <i class="fas fa-sign-in-alt me-2"></i>Iniciar Sesión
+                            </a>
+                        </li>
+                    </c:otherwise>
+                </c:choose>
+            </ul>
+        </div>
+    </div>
+</nav>
+<%--Contenido Principal--%>
 <div class="container py-5">
     <div class="card">
         <div class="card-header text-center">
@@ -84,7 +222,10 @@
                 </a>
             </div>
 
-            <!-- Tabla de usuarios -->
+            <p style="font-size:12px; color:gray;">
+                * La mora solo se calcula cuando el usuario devuelve el ejemplar.
+            </p>
+
             <div class="table-responsive">
                 <table class="table table-hover align-middle">
                     <thead>
@@ -95,7 +236,9 @@
                         <th>Correo</th>
                         <th>Tipo</th>
                         <th>Estado</th>
-                        <th>Mora</th>
+                        <th>Préstamos</th>
+                        <th>Vencidos</th>
+                        <th class="text-center">Mora*</th>
                         <th>Registrado</th>
                         <th>Acciones</th>
                     </tr>
@@ -104,9 +247,12 @@
                     <c:forEach var="u" items="${listaUsuarios}" varStatus="i">
                         <tr class="${u.tieneMora ? 'table-danger' : ''}">
                             <td>${i.index + 1}</td>
+                            <%--Nombre--%>
                             <td><strong>${u.nombreCompleto}</strong></td>
                             <td>${u.usuario}</td>
                             <td>${u.correo}</td>
+
+                                <%--Tipo--%>
                             <td>
                                     <span class="badge
                                         ${u.tipoUsuario.nombreTipo == 'Administrador' ? 'bg-danger' :
@@ -114,36 +260,59 @@
                                             ${u.tipoUsuario.nombreTipo}
                                     </span>
                             </td>
+                                <%--Estado--%>
+
                             <td>
                                     <span class="badge bg-${u.activo ? 'success' : 'secondary'}">
                                             ${u.activo ? 'Activo' : 'Inactivo'}
                                     </span>
                             </td>
-                            <td class="text-center">
+
+                            <td>${u.prestamosActivos}</td>
+
+                            <td>
                                 <c:choose>
-                                    <c:when test="${u.tieneMora}">
-                                        <div class="d-flex flex-column align-items-center gap-2">
-                                            <span class="badge bg-danger badge-mora">$ ${u.montoMora}</span>
-                                            <!-- Boton pagar mora -->
-                                            <button type="button" class="btn btn-success btn-sm shadow-sm"
-                                                    data-bs-toggle="modal"
-                                                    data-bs-target="#modalPagarMora"
-                                                    onclick="prepararPago(${u.idUsuario}, '${u.nombreCompleto}', ${u.montoMora})">
-                                                Pagar Ahora
-                                            </button>
-                                        </div>
+                                    <c:when test="${u.prestamosVencidos > 0}">
+                                        <span class="badge bg-warning text-dark">${u.prestamosActivos}</span>
                                     </c:when>
                                     <c:otherwise>
-                                        <span class="text-success fw-bold">Sin mora</span>
+                                        <span>0</span>
                                     </c:otherwise>
                                 </c:choose>
                             </td>
+                            <!-- Mora* -->
+                            <td class="text-center">
+                                <c:choose>
+                                    <c:when test="${u.moraReal > 0 and u.prestamosVencidos == 0}">
+                                        <span class="badge bg-danger">$ ${u.montoMora}</span>
+                                        <button class="btn btn-success btn-sm"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#modalPagarMora"
+                                                onclick="prepararPago(${u.idUsuario}, '${u.nombreCompleto}', ${u.montoMora})">
+                                            Pagar Ahora
+                                        </button>
+                                    </c:when>
+
+                                    <c:when test="${u.prestamosVencidos > 0}">
+                                        <span class="badge bg-warning text-dark">Devolución Pendiente</span>
+                                    </c:when>
+
+                                    <c:otherwise>
+                                        <span class="badge bg-success">Sin mora</span>
+                                    </c:otherwise>
+
+                                </c:choose>
+                            </td>
+
+
+
+
                             <td>
                                 <fmt:formatDate value="${u.fechaRegistro}" pattern="dd/MM/yyyy"/>
                             </td>
                             <td>
                                 <a href="usuarios.do?op=editar&id=${u.idUsuario}"
-                                   class="btn btn-warning btn-sm" title="Editar">
+                                   class="btn btn-warning btn-sm mb-1" title="Editar">
                                     Editar
                                 </a>
 

@@ -44,14 +44,14 @@ public class LoginController extends HttpServlet {
             throws ServletException, IOException {
 
         // SI VIENE ?logout → cierra sesión
-        if ("logout".equals(request.getParameter("logout"))) {
-            HttpSession session = request.getSession(false);
-            if (session != null) {
-                session.invalidate();
-            }
-            response.sendRedirect("login.jsp?logout=1");
-            return;
-        }
+//        if ("logout".equals(request.getParameter("logout"))) {
+//            HttpSession session = request.getSession(false);
+//            if (session != null) {
+//                session.invalidate();
+//            }
+//            response.sendRedirect("login.jsp?logout=1");
+//            return;
+//        }
 
         // CUALQUIER OTRA PETICIÓN GET A login.do → va al login LIMPIO
         response.sendRedirect("login.jsp");
