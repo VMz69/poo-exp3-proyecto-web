@@ -20,7 +20,6 @@
         .search-box { max-width: 400px; }
         .page-link { border-radius: 8px; }
         .page-item.active .page-link { background-color: #0d6efd; border-color: #0d6efd; }
-        /* NAVBAR FIJO Y SIEMPRE VISIBLE */
         .navbar-custom {
             background: rgba(30, 30, 60, 0.95) !important;
             backdrop-filter: blur(12px);
@@ -261,25 +260,6 @@
                     </tbody>
                 </table>
             </div>
-
-            <!-- Paginación (si tienes implementada) -->
-            <c:if test="${totalPaginas > 1}">
-                <nav aria-label="Paginación de ejemplares" class="mt-4">
-                    <ul class="pagination justify-content-center">
-                        <li class="page-item ${paginaActual == 1 ? 'disabled' : ''}">
-                            <a class="page-link" href="ejemplares.do?op=listar&pagina=${paginaActual - 1}">Anterior</a>
-                        </li>
-                        <c:forEach begin="1" end="${totalPaginas}" var="p">
-                            <li class="page-item ${p == paginaActual ? 'active' : ''}">
-                                <a class="page-link" href="ejemplares.do?op=listar&pagina=${p}">${p}</a>
-                            </li>
-                        </c:forEach>
-                        <li class="page-item ${paginaActual == totalPaginas ? 'disabled' : ''}">
-                            <a class="page-link" href="ejemplares.do?op=listar&pagina=${paginaActual + 1}">Siguiente</a>
-                        </li>
-                    </ul>
-                </nav>
-            </c:if>
         </div>
     </div>
 </div>
