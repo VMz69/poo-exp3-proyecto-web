@@ -60,19 +60,19 @@ public class AuthFilter implements Filter {
         boolean loggedIn = session != null &&
                 session.getAttribute("usuarioLogueado") != null;
 
-        // ✅ permitir todo lo público
+        // permitir todo lo público
         if (isPublic(req)) {
             chain.doFilter(request, response);
             return;
         }
 
-        // ❌ página privada sin sesión → login
+        // página privada sin sesión → login
         if (!loggedIn) {
             res.sendRedirect(req.getContextPath() + "/login.jsp?timeout=1");
             return;
         }
 
-        // ✅ usuario autenticado → continuar
+        // usuario autenticado → continuar
         chain.doFilter(request, response);
     }
 

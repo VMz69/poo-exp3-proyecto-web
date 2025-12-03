@@ -141,83 +141,184 @@
                 </div>
 
                 <!-- CAMPOS ESPECÍFICOS SEGÚN TIPO -->
-                <c:choose>
-                    <c:when test="${ejemplar['class'].simpleName == 'Libro'}">
-                        <div id="camposLibro" class="campo-especifico">
-                            <h5>Libro</h5>
-                            <div class="row g-3">
-                                <div class="col-md-4"><label>Número de páginas</label><input type="number" name="numPaginasLibro" class="form-control" value="${ejemplar.numPaginas}"></div>
-                                <div class="col-md-4"><label>Colección</label><input type="text" name="coleccion" class="form-control" value="${ejemplar.coleccion}"></div>
-                                <div class="col-md-4"><label>Número/Serie</label><input type="text" name="numeroSerie" class="form-control" value="${ejemplar.numeroSerie}"></div>
-                            </div>
+                <!-- LIBRO -->
+                <div id="camposLibro" class="campo-especifico">
+                    <h5><i class="bi bi-book"></i> Información de Libro</h5>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Número de páginas</label>
+                            <input type="number" name="numPaginasLibro" class="form-control"
+                                   value="${ejemplar['class'].simpleName == 'Libro' ? ejemplar.numPaginas : ''}">
                         </div>
-                    </c:when>
-                    <c:when test="${ejemplar['class'].simpleName == 'Tesis'}">
-                        <div id="camposTesis" class="campo-especifico">
-                            <h5>Tesis</h5>
-                            <div class="row g-3">
-                                <div class="col-md-4"><label>Páginas</label><input type="number" name="numPaginasTesis" class="form-control" value="${ejemplar.numPaginas}"></div>
-                                <div class="col-md-8"><label>Universidad</label><input type="text" name="universidad" class="form-control" value="${ejemplar.universidad}"></div>
-                                <div class="col-md-6"><label>Facultad</label><input type="text" name="facultad" class="form-control" value="${ejemplar.facultad}"></div>
-                                <div class="col-md-6"><label>Carrera</label><input type="text" name="carrera" class="form-control" value="${ejemplar.carrera}"></div>
-                                <div class="col-md-6"><label>Asesor</label><input type="text" name="asesor" class="form-control" value="${ejemplar.asesor}"></div>
-                                <div class="col-md-6"><label>Grado Académico</label><input type="text" name="gradoAcademico" class="form-control" value="${ejemplar.gradoAcademico}"></div>
-                            </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Colección</label>
+                            <input type="text" name="coleccion" class="form-control"
+                                   value="${ejemplar['class'].simpleName == 'Libro' ? ejemplar.coleccion : ''}">
                         </div>
-                    </c:when>
-                    <c:when test="${ejemplar['class'].simpleName == 'Revista'}">
-                        <div id="camposRevista" class="campo-especifico">
-                            <h5>Revista</h5>
-                            <div class="row g-3">
-                                <div class="col-md-3"><label>Páginas</label><input type="number" name="numPaginasRevista" class="form-control" value="${ejemplar.numPaginas}"></div>
-                                <div class="col-md-3"><label>Volumen</label><input type="text" name="volumen" class="form-control" value="${ejemplar.volumen}"></div>
-                                <div class="col-md-3"><label>Número</label><input type="text" name="numero" class="form-control" value="${ejemplar.numero}"></div>
-                                <div class="col-md-3"><label>Periodicidad</label><input type="text" name="periodicidad" class="form-control" value="${ejemplar.periodicidad}"></div>
-                            </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Número/Serie</label>
+                            <input type="text" name="numeroSerie" class="form-control"
+                                   value="${ejemplar['class'].simpleName == 'Libro' ? ejemplar.numeroSerie : ''}">
                         </div>
-                    </c:when>
-                    <c:when test="${ejemplar['class'].simpleName == 'CD'}">
-                        <div id="camposCD" class="campo-especifico">
-                            <h5>CD</h5>
-                            <div class="row g-3">
-                                <div class="col-md-4"><label>Duración (min)</label><input type="number" name="duracionCD" class="form-control" value="${ejemplar.duracion}"></div>
-                                <div class="col-md-4"><label>Formato</label><input type="text" name="formatoCD" class="form-control" value="${ejemplar.formato}"></div>
-                                <div class="col-md-4"><label>Artista</label><input type="text" name="artistaCD" class="form-control" value="${ejemplar.artista}"></div>
-                            </div>
+                    </div>
+                </div>
+
+                <!-- TESIS -->
+                <div id="camposTesis" class="campo-especifico">
+                    <h5><i class="bi bi-mortarboard"></i> Información de Tesis</h5>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Páginas</label>
+                            <input type="number" name="numPaginasTesis" class="form-control"
+                                   value="${ejemplar['class'].simpleName == 'Tesis' ? ejemplar.numPaginas : ''}">
                         </div>
-                    </c:when>
-                    <c:when test="${ejemplar['class'].simpleName == 'DVD'}">
-                        <div id="camposDVD" class="campo-especifico">
-                            <h5>DVD</h5>
-                            <div class="row g-3">
-                                <div class="col-md-4"><label>Duración (min)</label><input type="number" name="duracionDVD" class="form-control" value="${ejemplar.duracion}"></div>
-                                <div class="col-md-4"><label>Formato</label><input type="text" name="formatoDVD" class="form-control" value="${ejemplar.formato}"></div>
-                                <div class="col-md-4"><label>Director</label><input type="text" name="directorDVD" class="form-control" value="${ejemplar.director}"></div>
-                            </div>
+                        <div class="col-md-8">
+                            <label class="form-label">Universidad</label>
+                            <input type="text" name="universidad" class="form-control"
+                                   value="${ejemplar['class'].simpleName == 'Tesis' ? ejemplar.universidad : ''}">
                         </div>
-                    </c:when>
-                    <c:when test="${ejemplar['class'].simpleName == 'Informe'}">
-                        <div id="camposInforme" class="campo-especifico">
-                            <h5>Informe</h5>
-                            <div class="row g-3">
-                                <div class="col-md-4"><label>Páginas</label><input type="number" name="numPaginasInforme" class="form-control" value="${ejemplar.numPaginas}"></div>
-                                <div class="col-md-4"><label>Institución</label><input type="text" name="institucion" class="form-control" value="${ejemplar.institucion}"></div>
-                                <div class="col-md-4"><label>Supervisor</label><input type="text" name="supervisor" class="form-control" value="${ejemplar.supervisor}"></div>
-                            </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Facultad</label>
+                            <input type="text" name="facultad" class="form-control"
+                                   value="${ejemplar['class'].simpleName == 'Tesis' ? ejemplar.facultad : ''}">
                         </div>
-                    </c:when>
-                    <c:when test="${ejemplar['class'].simpleName == 'Manual'}">
-                        <div id="camposManual" class="campo-especifico">
-                            <h5>Manual</h5>
-                            <div class="row g-3">
-                                <div class="col-md-4"><label>Páginas</label><input type="number" name="numPaginasManual" class="form-control" value="${ejemplar.numPaginas}"></div>
-                                <div class="col-md-4"><label>Área</label><input type="text" name="areaManual" class="form-control" value="${ejemplar.area}"></div>
-                                <div class="col-md-4"><label>Nivel de usuario</label><input type="text" name="nivelUsuario" class="form-control" value="${ejemplar.nivelUsuario}"></div>
-                                <div class="col-md-4"><label>Versión</label><input type="text" name="versionManual" class="form-control" value="${ejemplar.version}"></div>
-                            </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Carrera</label>
+                            <input type="text" name="carrera" class="form-control"
+                                   value="${ejemplar['class'].simpleName == 'Tesis' ? ejemplar.carrera : ''}">
                         </div>
-                    </c:when>
-                </c:choose>
+                        <div class="col-md-6">
+                            <label class="form-label">Asesor</label>
+                            <input type="text" name="asesor" class="form-control"
+                                   value="${ejemplar['class'].simpleName == 'Tesis' ? ejemplar.asesor : ''}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Grado Académico</label>
+                            <input type="text" name="gradoAcademico" class="form-control"
+                                   value="${ejemplar['class'].simpleName == 'Tesis' ? ejemplar.gradoAcademico : ''}">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- REVISTA -->
+                <div id="camposRevista" class="campo-especifico">
+                    <h5><i class="bi bi-newspaper"></i> Información de Revista</h5>
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <label class="form-label">Páginas</label>
+                            <input type="number" name="numPaginasRevista" class="form-control"
+                                   value="${ejemplar['class'].simpleName == 'Revista' ? ejemplar.numPaginas : ''}">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Volumen</label>
+                            <input type="text" name="volumen" class="form-control"
+                                   value="${ejemplar['class'].simpleName == 'Revista' ? ejemplar.volumen : ''}">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Número</label>
+                            <input type="text" name="numero" class="form-control"
+                                   value="${ejemplar['class'].simpleName == 'Revista' ? ejemplar.numero : ''}">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Periodicidad</label>
+                            <input type="text" name="periodicidad" class="form-control"
+                                   value="${ejemplar['class'].simpleName == 'Revista' ? ejemplar.periodicidad : ''}">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CD -->
+                <div id="camposCD" class="campo-especifico">
+                    <h5><i class="bi bi-disc"></i> Información de CD</h5>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Duración (min)</label>
+                            <input type="number" name="duracionCD" class="form-control"
+                                   value="${ejemplar['class'].simpleName == 'CD' ? ejemplar.duracion : ''}">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Formato</label>
+                            <input type="text" name="formatoCD" class="form-control"
+                                   value="${ejemplar['class'].simpleName == 'CD' ? ejemplar.formato : ''}">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Artista</label>
+                            <input type="text" name="artistaCD" class="form-control"
+                                   value="${ejemplar['class'].simpleName == 'CD' ? ejemplar.artista : ''}">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DVD -->
+                <div id="camposDVD" class="campo-especifico">
+                    <h5><i class="bi bi-film"></i> Información de DVD</h5>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Duración (min)</label>
+                            <input type="number" name="duracionDVD" class="form-control"
+                                   value="${ejemplar['class'].simpleName == 'DVD' ? ejemplar.duracion : ''}">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Formato</label>
+                            <input type="text" name="formatoDVD" class="form-control"
+                                   value="${ejemplar['class'].simpleName == 'DVD' ? ejemplar.formato : ''}">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Director</label>
+                            <input type="text" name="directorDVD" class="form-control"
+                                   value="${ejemplar['class'].simpleName == 'DVD' ? ejemplar.director : ''}">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- INFORME -->
+                <div id="camposInforme" class="campo-especifico">
+                    <h5><i class="bi bi-file-earmark-text"></i> Información de Informe</h5>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Páginas</label>
+                            <input type="number" name="numPaginasInforme" class="form-control"
+                                   value="${ejemplar['class'].simpleName == 'Informe' ? ejemplar.numPaginas : ''}">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Institución</label>
+                            <input type="text" name="institucion" class="form-control"
+                                   value="${ejemplar['class'].simpleName == 'Informe' ? ejemplar.institucion : ''}">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Supervisor</label>
+                            <input type="text" name="supervisor" class="form-control"
+                                   value="${ejemplar['class'].simpleName == 'Informe' ? ejemplar.supervisor : ''}">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MANUAL -->
+                <div id="camposManual" class="campo-especifico">
+                    <h5><i class="bi bi-journal-code"></i> Información de Manual</h5>
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <label class="form-label">Páginas</label>
+                            <input type="number" name="numPaginasManual" class="form-control"
+                                   value="${ejemplar['class'].simpleName == 'Manual' ? ejemplar.numPaginas : ''}">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Área</label>
+                            <input type="text" name="areaManual" class="form-control"
+                                   value="${ejemplar['class'].simpleName == 'Manual' ? ejemplar.area : ''}">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Nivel de usuario</label>
+                            <input type="text" name="nivelUsuario" class="form-control"
+                                   value="${ejemplar['class'].simpleName == 'Manual' ? ejemplar.nivelUsuario : ''}">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Versión</label>
+                            <input type="text" name="versionManual" class="form-control"
+                                   value="${ejemplar['class'].simpleName == 'Manual' ? ejemplar.version : ''}">
+                        </div>
+                    </div>
+                </div>
 
                 <hr class="my-4">
                 <div class="text-end">
@@ -231,18 +332,37 @@
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     $(document).ready(function() {
-        // Mostrar automáticamente los campos específicos según el tipo
-        var tipoTexto = "${ejemplar.tipoDocumentoString}";
-        if (tipoTexto === 'Libro') $('#camposLibro').show();
-        else if (tipoTexto === 'Tesis') $('#camposTesis').show();
-        else if (tipoTexto === 'Revista') $('#camposRevista').show();
-        else if (tipoTexto === 'CD') $('#camposCD').show();
-        else if (tipoTexto === 'DVD') $('#camposDVD').show();
-        else if (tipoTexto === 'Informe') $('#camposInforme').show();
-        else if (tipoTexto === 'Manual') $('#camposManual').show();
+        var tipoClase = "${ejemplar['class'].simpleName}";
+
+        $('.campo-especifico').hide();
+
+        // Mostrar según el tipo
+        switch(tipoClase) {
+            case 'Libro':
+                $('#camposLibro').show();
+                break;
+            case 'Tesis':
+                $('#camposTesis').show();
+                break;
+            case 'Revista':
+                $('#camposRevista').show();
+                break;
+            case 'CD':
+                $('#camposCD').show();
+                break;
+            case 'DVD':
+                $('#camposDVD').show();
+                break;
+            case 'Informe':
+                $('#camposInforme').show();
+                break;
+            case 'Manual':
+                $('#camposManual').show();
+                break;
+            default:
+        }
     });
 </script>
 </body>
